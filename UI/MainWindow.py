@@ -1,5 +1,5 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QCheckBox, QLabel, QHBoxLayout
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QCheckBox, QLabel, QHBoxLayout, QTextEdit
 from .widgets import create_count_groupbox
 from Logic.count_problem import count_numbers
 
@@ -7,7 +7,7 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Bài Toán Đếm Số & Rút Thẻ")
-        self.resize(500, 500)
+        self.resize(620, 500)
         self.setup_ui()
 
     def setup_ui(self):
@@ -23,9 +23,25 @@ class MainWindow(QWidget):
 
         # Truy xuất và lưu trữ các widget cụ thể
         self.input_numbers = self.count_groupbox.findChild(QLineEdit, "input_numbers")
+        self.checkbox_input_k_digits = self.count_groupbox.findChild(QCheckBox, "checkbox_input_k_digits")
         self.input_k_digits = self.count_groupbox.findChild(QLineEdit, "input_k_digits")
+        self.checkbox_starts_by = self.count_groupbox.findChild(QCheckBox, "checkbox_starts_by")
+        self.input_starts_by = self.count_groupbox.findChild(QLineEdit, "starts_input")
+        self.checkbox_not_starts_by = self.count_groupbox.findChild(QCheckBox, "checkbox_not_starts_by")
+        self.input_not_starts_by = self.count_groupbox.findChild(QLineEdit, "not_starts_input")
+        self.checkbox_not_includes_by = self.count_groupbox.findChild(QCheckBox, "checkbox_not_includes_by")
+        self.input_not_includes_by = self.count_groupbox.findChild(QLineEdit, "not_includes_input")
         self.input_divisible_by = self.count_groupbox.findChild(QLineEdit, "divisible_input")
         self.checkbox_divisible_by = self.count_groupbox.findChild(QCheckBox, "checkbox_divisible_by")
+        self.input_ends_by = self.count_groupbox.findChild(QLineEdit, "ends_input")
+        self.checkbox_ends_by = self.count_groupbox.findChild(QCheckBox, "checkbox_ends_by")
+        self.input_bigger_than = self.count_groupbox.findChild(QLineEdit, "bigger_than_input")
+        self.checkbox_bigger_than = self.count_groupbox.findChild(QCheckBox, "checkbox_bigger_than")
+        self.input_is_k_digits = self.count_groupbox.findChild(QLineEdit, "is_k_digits_input")
+        self.checkbox_is_k_digits = self.count_groupbox.findChild(QCheckBox, "checkbox_is_k_digits")
+        self.even_checkbox = self.count_groupbox.findChild(QCheckBox, "even_checkbox")
+        self.odd_checkbox = self.count_groupbox.findChild(QCheckBox, "odd_checkbox")
+        self.all_diff_checkbox = self.count_groupbox.findChild(QCheckBox, "all_different")
 
         # Lấy nút tính toán và kết nối với hàm xử lý
         calculate_button = self.count_groupbox.findChild(QPushButton, "calculate_button")
@@ -34,29 +50,79 @@ class MainWindow(QWidget):
         calculate_button.clicked.connect(self.handle_calculation)
 
     def create_result_display(self):
-        layout = QHBoxLayout()
-        result_label = QLabel("Số lượng số thỏa mãn: ")
-        self.result_output = QLineEdit()
-        self.result_output.setObjectName("result_output")
+        layout = QVBoxLayout()
+        self.result_output = QTextEdit()
         self.result_output.setReadOnly(True)
-        layout.addWidget(result_label)
-        layout.addWidget(self.result_output)
+        self.result_output.setObjectName("result_output")
+
+        layout.addWidget(self.result_output, 1)  # Đặt tỷ lệ mở rộng là 1 để chiếm toàn bộ không gian còn lại
         return layout
 
     def handle_calculation(self):
         input_digits = self.input_numbers.text().replace(',', '')  # ví dụ: '2,3,4'
-        num_length = int(self.input_k_digits.text())  # số chữ số, ví dụ: 4
-        print(f"Digits: {input_digits}")
-        print(f"Number length: {num_length}")
 
-        conditions = {}
+        conditions = {
+            'has_k_digits': self.input_k_digits.text() if self.checkbox_input_k_digits.isChecked() else None,
+            'divisible_by': self.input_divisible_by.text() if self.checkbox_divisible_by.isChecked() else None,
+            'starts_by': self.input_starts_by.text() if self.checkbox_starts_by.isChecked() else None,
+            'not_starts_by': self.input_not_starts_by.text() if self.checkbox_not_starts_by.isChecked() else None,
+            'not_includes_by': self.input_not_includes_by.text() if self.checkbox_not_includes_by.isChecked() else None,
+            'ends_by': self.input_ends_by.text() if self.checkbox_ends_by.isChecked() else None,
+            'bigger_than': self.input_bigger_than.text() if self.checkbox_bigger_than.isChecked() else None,
+            'is_k_digits': self.input_is_k_digits.text() if self.checkbox_is_k_digits.isChecked() else None,
+            'is_even': self.even_checkbox.isChecked(),
+            'is_odd': self.odd_checkbox.isChecked(),
+            'all_different': self.all_diff_checkbox.isChecked()
+        }
+        print(f"Digits: {input_digits}")
+        print(f"Conditions: {conditions}")
+
+        if self.checkbox_input_k_digits.isChecked():
+            try:
+                has_k_digits = int(self.input_k_digits.text())
+                conditions['has_k_digits'] = has_k_digits
+                print(f"Has k digits: {has_k_digits}")
+            except ValueError:
+                print("Invalid number of digits input.")
+
+        if self.checkbox_starts_by.isChecked():
+            starts_by = self.input_starts_by.text()
+            conditions['starts_by'] = starts_by
+            print(f"Starts by: {starts_by}")
+
+        if self.checkbox_not_starts_by.isChecked():
+            not_starts_by = self.input_not_starts_by.text()
+            conditions['not_starts_by'] = not_starts_by
+            print(f"Not starts by: {not_starts_by}")
+        
+        if self.checkbox_not_includes_by.isChecked():
+            not_includes_by = self.input_not_includes_by
+            print(f"Not includes by: {not_includes_by}")
+
         if self.checkbox_divisible_by.isChecked():
-            divisible_by = int(self.input_divisible_by.text())
+            divisible_by = self.input_divisible_by.text()
             conditions['divisible_by'] = divisible_by
             print(f"Divisible by: {divisible_by}")
 
-        result = count_numbers(input_digits, num_length, conditions)
-        self.result_output.setText(str(result))
+        if self.checkbox_ends_by.isChecked():
+            ends_by = int(self.input_ends_by.text())
+            conditions['ends_by'] = ends_by
+            print(f"Ends by: {ends_by}")
+
+        if self.checkbox_bigger_than.isChecked():
+            bigger_than = int(self.input_bigger_than.text())
+            conditions['bigger_than'] = bigger_than
+            print(f"Bigger than: {bigger_than}")
+
+        if self.checkbox_is_k_digits.isChecked():
+            is_k_digits = self.input_is_k_digits.text()
+            conditions['is_k_digits'] = is_k_digits
+            print(f"Is k digits: {is_k_digits}")
+
+        result, number_list = count_numbers(input_digits, conditions)
+
+        display_text = f"Số lượng số thỏa mãn: {result}\n" + ", ".join(number_list)
+        self.result_output.setText(display_text)
 
 
 if __name__ == "__main__":
