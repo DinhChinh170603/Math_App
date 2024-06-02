@@ -1,13 +1,13 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QCheckBox, QLabel, QHBoxLayout, QTextEdit
-from .widgets import create_count_groupbox
+from .widgets import create_count_groupbox, create_draw_groupbox
 from Logic.count_problem import count_numbers
 
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Bài Toán Đếm Số & Rút Thẻ")
-        self.resize(620, 500)
+        self.resize(620, 700)
         self.setup_ui()
 
     def setup_ui(self):
@@ -16,6 +16,8 @@ class MainWindow(QWidget):
         # Tạo các widget từ widgets.py
         self.count_groupbox = create_count_groupbox()
         main_layout.addWidget(self.count_groupbox)
+        self.draw_groupbox = create_draw_groupbox()
+        main_layout.addWidget(self.draw_groupbox)
 
         # Tạo kết quả hiển thị
         self.result_display = self.create_result_display()

@@ -1,7 +1,9 @@
 from PyQt6.QtWidgets import (
-    QGroupBox, QGridLayout, QLabel, QLineEdit, QCheckBox, QPushButton, QHBoxLayout
+    QGroupBox, QGridLayout, QLabel, QLineEdit, QCheckBox, QPushButton, QHBoxLayout, QSpinBox
 )
 
+# addWidget(widget, row, column, rowspan, colspan)
+### *** Bài toán đếm số ***
 
 def create_count_groupbox():
     groupbox = QGroupBox("Bài Toán Đếm Số")
@@ -156,38 +158,48 @@ def create_count_groupbox():
 # Assuming the same pattern for create_draw_groupbox and create_result_display
 # Continue to define them similarly with proper QObject names
 
+### *** Bài toán rút thẻ ***
 
-# def create_draw_groupbox():
-#     groupbox = QGroupBox("Bài Toán Rút Thẻ")
-#     layout = QGridLayout()
+def create_draw_groupbox():
+    groupbox = QGroupBox("Bài Toán Rút Thẻ")
+    layout = QGridLayout()
 
-#     # Input fields for the draw problem
-#     input6_spinbox = QSpinBox()
-#     layout.addWidget(QLabel("Từ thẻ:"), 0, 0)
-#     layout.addWidget(input6_spinbox, 0, 1)
+    # SpinBoxes for selecting the start and end card
+    layout.addWidget(QLabel("Từ thẻ:"), 0, 0) 
+    input_start_at = QSpinBox()
+    input_start_at.setRange(1, 999)
+    input_start_at.setObjectName("start_at_input")
+    layout.addWidget(input_start_at, 0, 1) 
 
-#     input7_spinbox = QSpinBox()
-#     layout.addWidget(QLabel("Đến thẻ:"), 1, 0)
-#     layout.addWidget(input7_spinbox, 1, 1)
+    layout.addWidget(QLabel("Đến thẻ:"), 0, 2)  
+    input_end_at = QSpinBox()
+    input_end_at.setRange(2, 1000)
+    input_end_at.setObjectName("end_at_input")
+    layout.addWidget(input_end_at, 0, 3)
 
-#     input8_edit = QLineEdit()
-#     layout.addWidget(QLabel("Nhập các thẻ (ví dụ: 1,2,...,17):"), 2, 0)
-#     layout.addWidget(input8_edit, 2, 1, 1, 2)
+    # QLineEdit for entering specific cards
+    layout.addWidget(QLabel("Nhập các thẻ (ví dụ: 1,2,...,1000):"), 1, 0) 
+    input_cards = QLineEdit()
+    input_cards.set
+    layout.addWidget(input_cards, 2, 0, 1, 4)  
 
-#     # Checkboxes for conditions
-#     checkbox3_1 = QCheckBox("Số thẻ được rút")
-#     layout.addWidget(checkbox3_1, 3, 0)
-#     checkbox3_2 = QCheckBox("Tổng chia hết cho")
-#     layout.addWidget(checkbox3_2, 3, 1)
-#     checkbox3_3 = QCheckBox("Số thẻ chẵn")
-#     layout.addWidget(checkbox3_3, 3, 2)
-#     checkbox3_4 = QCheckBox("Tích chia hết cho")
-#     layout.addWidget(checkbox3_4, 4, 0)
+    # Checkboxes for conditions
+    checkbox_drawn = QCheckBox("Số thẻ được rút")
+    layout.addWidget(checkbox_drawn, 3, 0)  
 
-#     # Button to perform calculation
-#     button2 = QPushButton("Tính toán bài rút thẻ")
-#     layout.addWidget(button2, 5, 0, 1, 3)
+    checkbox_even = QCheckBox("Số thẻ chẵn")
+    layout.addWidget(checkbox_even, 3, 2)  
+    
+    checkbox_sum_divisible = QCheckBox("Tổng chia hết cho")
+    layout.addWidget(checkbox_sum_divisible, 4, 0)  
 
-#     groupbox.setLayout(layout)
-#     return groupbox
+    checkbox_product_divisible = QCheckBox("Tích chia hết cho")
+    layout.addWidget(checkbox_product_divisible, 4, 2) 
+
+    # Button to perform calculation
+    button_calculate = QPushButton("Tính toán bài rút thẻ")
+    layout.addWidget(button_calculate, 5, 0, 1, 4)  
+
+    groupbox.setLayout(layout)
+    return groupbox
 
