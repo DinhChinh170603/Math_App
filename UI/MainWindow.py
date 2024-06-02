@@ -1,7 +1,8 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QCheckBox, QLabel, QHBoxLayout, QTextEdit
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QCheckBox, QLabel, QHBoxLayout, QTextEdit, QSpinBox
 from .widgets import create_count_groupbox, create_draw_groupbox
 from Logic.count_problem import count_numbers
+from Logic.draw_problem import evaluate_conditions
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -45,11 +46,25 @@ class MainWindow(QWidget):
         self.odd_checkbox = self.count_groupbox.findChild(QCheckBox, "odd_checkbox")
         self.all_diff_checkbox = self.count_groupbox.findChild(QCheckBox, "all_different")
 
+        self.input_cards = self.draw_groupbox.findChild(QLineEdit, "input_cards")
+        self.input_start_at = self.draw_groupbox.findChild(QSpinBox, "start_at_input")
+        self.input_end_at = self.draw_groupbox.findChild(QSpinBox, "end_at_input")
+        self.checkbox_drawn = self.draw_groupbox.findChild(QCheckBox, "checkbox_input_drawn")
+        self.input_drawn = self.draw_groupbox.findChild(QLineEdit, "input_drawn")
+        self.checkbox_even = self.draw_groupbox.findChild(QCheckBox, "checkbox_input_even")
+        self.input_even = self.draw_groupbox.findChild(QLineEdit, "input_even")
+        self.checkbox_sum_divisible = self.draw_groupbox.findChild(QCheckBox, "checkbox_input_sum_divi")
+        self.input_sum_divi = self.draw_groupbox.findChild(QLineEdit, "input_sum_divi")
+        self.checkbox_product_divisible = self.draw_groupbox.findChild(QCheckBox, "checkbox_input_product_divi")
+        self.input_product_divi = self.draw_groupbox.findChild(QLineEdit, "input_product_divi")
+
         # Lấy nút tính toán và kết nối với hàm xử lý
         calculate_button = self.count_groupbox.findChild(QPushButton, "calculate_button")
+        calculate_button1 = self.draw_groupbox.findChild(QPushButton, "calculate_button1")
 
         # Kết nối sự kiện
         calculate_button.clicked.connect(self.handle_calculation)
+        calculate_button1.clicked.connect(self.handle_drawcard_calculation)
 
     def create_result_display(self):
         layout = QVBoxLayout()
@@ -125,6 +140,28 @@ class MainWindow(QWidget):
 
         display_text = f"Số lượng số thỏa mãn: {result}\n" + ", ".join(number_list)
         self.result_output.setText(display_text)
+
+    def handle_drawcard_calculation(self):
+        input_digits = self.input_cards.text().replace(',', '')
+
+        conditions1 = {
+            'has_k_digits': self.input_k_digits.text() if self.checkbox_input_k_digits.isChecked() else None,
+            'divisible_by': self.input_divisible_by.text() if self.checkbox_divisible_by.isChecked() else None,
+            'starts_by': self.input_starts_by.text() if self.checkbox_starts_by.isChecked() else None,
+            'not_starts_by': self.input_not_starts_by.text() if self.checkbox_not_starts_by.isChecked() else None,
+            'not_includes_by': self.input_not_includes_by.text() if self.checkbox_not_includes_by.isChecked() else None,
+            'ends_by': self.input_ends_by.text() if self.checkbox_ends_by.isChecked() else None,
+            'bigger_than': self.input_bigger_than.text() if self.checkbox_bigger_than.isChecked() else None,
+            'is_k_digits': self.input_is_k_digits.text() if self.checkbox_is_k_digits.isChecked() else None,
+            'is_even': self.even_checkbox.isChecked(),
+            'is_odd': self.odd_checkbox.isChecked(),
+            'all_different': self.all_diff_checkbox.isChecked()
+        }
+
+        result, card_list = evaluate_conditions(int(self.input_start_at.text()), int(self.input_end_at.text()), input_digits, conditions1)
+
+        # display_text = f"Số lượng số thỏa mãn: {result}\n" + ", ".join(card_list)
+        # self.result_output.setText(display_text)
 
 
 if __name__ == "__main__":

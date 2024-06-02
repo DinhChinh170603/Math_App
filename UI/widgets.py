@@ -174,31 +174,61 @@ def create_draw_groupbox():
     layout.addWidget(QLabel("Đến thẻ:"), 0, 2)  
     input_end_at = QSpinBox()
     input_end_at.setRange(2, 1000)
+    # input_end_at.setDefault()
     input_end_at.setObjectName("end_at_input")
     layout.addWidget(input_end_at, 0, 3)
 
     # QLineEdit for entering specific cards
     layout.addWidget(QLabel("Nhập các thẻ (ví dụ: 1,2,...,1000):"), 1, 0) 
     input_cards = QLineEdit()
-    input_cards.set
+    input_cards.setObjectName("input_cards")
     layout.addWidget(input_cards, 2, 0, 1, 4)  
 
     # Checkboxes for conditions
     checkbox_drawn = QCheckBox("Số thẻ được rút")
-    layout.addWidget(checkbox_drawn, 3, 0)  
+    layout.addWidget(checkbox_drawn, 3, 0)
+    input_drawn = QLineEdit()
+    input_drawn.setObjectName("input_drawn")
+    input_drawn.setPlaceholderText("Nhập số thẻ")
+    input_drawn.setEnabled(False)
+    layout.addWidget(input_drawn, 3, 1)
+    checkbox_drawn.toggled.connect(lambda checked: input_drawn.setEnabled(checked))
+    checkbox_drawn.setObjectName("checkbox_input_drawn")
 
     checkbox_even = QCheckBox("Số thẻ chẵn")
-    layout.addWidget(checkbox_even, 3, 2)  
+    layout.addWidget(checkbox_even, 3, 2)
+    input_even = QLineEdit()
+    input_even.setObjectName("input_even")
+    input_even.setPlaceholderText("Nhập số thẻ")
+    input_even.setEnabled(False)
+    layout.addWidget(input_even, 3, 3)
+    checkbox_even.toggled.connect(lambda checked: input_even.setEnabled(checked))
+    checkbox_even.setObjectName("checkbox_input_even")
     
     checkbox_sum_divisible = QCheckBox("Tổng chia hết cho")
-    layout.addWidget(checkbox_sum_divisible, 4, 0)  
+    layout.addWidget(checkbox_sum_divisible, 4, 0)
+    input_sum_divi = QLineEdit()
+    input_sum_divi.setObjectName("input_sum_divi")
+    input_sum_divi.setPlaceholderText("Nhập chữ số")
+    input_sum_divi.setEnabled(False)
+    layout.addWidget(input_sum_divi, 4, 1)
+    checkbox_sum_divisible.toggled.connect(lambda checked: input_sum_divi.setEnabled(checked))
+    checkbox_sum_divisible.setObjectName("checkbox_input_sum_divi")  
 
     checkbox_product_divisible = QCheckBox("Tích chia hết cho")
-    layout.addWidget(checkbox_product_divisible, 4, 2) 
+    layout.addWidget(checkbox_product_divisible, 4, 2)
+    input_product_divi = QLineEdit()
+    input_product_divi.setObjectName("input_product_divi")
+    input_product_divi.setPlaceholderText("Nhập chữ số")
+    input_product_divi.setEnabled(False)
+    layout.addWidget(input_product_divi, 4, 3)
+    checkbox_product_divisible.toggled.connect(lambda checked: input_product_divi.setEnabled(checked))
+    checkbox_product_divisible.setObjectName("checkbox_input_product_divi") 
 
     # Button to perform calculation
-    button_calculate = QPushButton("Tính toán bài rút thẻ")
-    layout.addWidget(button_calculate, 5, 0, 1, 4)  
+    calculate_button1 = QPushButton("Tính toán bài rút thẻ")
+    calculate_button1.setObjectName("calculate_button1")
+    layout.addWidget(calculate_button1, 5, 0, 1, 4)  
 
     groupbox.setLayout(layout)
     return groupbox
