@@ -9,4 +9,4 @@ def main():
     sys.exit(app.exec())          
 
 if __name__ == "__main__":
-    main()  # Gọi hàm main khi file này được chạy như một script
+    main()

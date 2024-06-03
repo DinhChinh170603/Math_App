@@ -174,7 +174,6 @@ def create_draw_groupbox():
     layout.addWidget(QLabel("Đến thẻ:"), 0, 2)  
     input_end_at = QSpinBox()
     input_end_at.setRange(2, 1000)
-    # input_end_at.setDefault()
     input_end_at.setObjectName("end_at_input")
     layout.addWidget(input_end_at, 0, 3)
 
@@ -228,6 +227,32 @@ def create_draw_groupbox():
     # Button to perform calculation
     calculate_button1 = QPushButton("Tính toán bài rút thẻ")
     calculate_button1.setObjectName("calculate_button1")
+    calculate_button1.setStyleSheet("""
+        QPushButton {
+            background-color: qlineargradient(
+                spread:pad, 
+                x1:0.034, y1:0.034, 
+                x2:0.924, y2:0.920, 
+                stop:0 rgba(47, 204, 113, 255), 
+                stop:1 rgba(34, 152, 83, 255)
+            );
+            color: white;
+            font-weight: bold;
+            border: none;
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        QPushButton:hover {
+            background-color: qlineargradient(
+                spread:pad, 
+                x1:0.034, y1:0.034, 
+                x2:0.924, y2:0.920, 
+                stop:0 rgba(67, 224, 133, 255), 
+                stop:1 rgba(44, 182, 113, 255)
+            );
+        }
+    """)
     layout.addWidget(calculate_button1, 5, 0, 1, 4)  
 
     groupbox.setLayout(layout)

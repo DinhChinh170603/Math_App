@@ -2,7 +2,7 @@ import sys
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QCheckBox, QLabel, QHBoxLayout, QTextEdit, QSpinBox
 from .widgets import create_count_groupbox, create_draw_groupbox
 from Logic.count_problem import count_numbers
-from Logic.draw_problem import evaluate_conditions
+from Logic.draw_problem import count_cards
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -72,11 +72,11 @@ class MainWindow(QWidget):
         self.result_output.setReadOnly(True)
         self.result_output.setObjectName("result_output")
 
-        layout.addWidget(self.result_output, 1)  # Đặt tỷ lệ mở rộng là 1 để chiếm toàn bộ không gian còn lại
+        layout.addWidget(self.result_output, 1)
         return layout
 
     def handle_calculation(self):
-        input_digits = self.input_numbers.text().replace(',', '')  # ví dụ: '2,3,4'
+        input_digits = self.input_numbers.text().replace(',', '') 
 
         conditions = {
             'has_k_digits': self.input_k_digits.text() if self.checkbox_input_k_digits.isChecked() else None,
@@ -142,26 +142,64 @@ class MainWindow(QWidget):
         self.result_output.setText(display_text)
 
     def handle_drawcard_calculation(self):
-        input_digits = self.input_cards.text().replace(',', '')
+        # input_tag_list = self.input_cards.text().replace(',', '')
 
         conditions1 = {
-            'has_k_digits': self.input_k_digits.text() if self.checkbox_input_k_digits.isChecked() else None,
-            'divisible_by': self.input_divisible_by.text() if self.checkbox_divisible_by.isChecked() else None,
-            'starts_by': self.input_starts_by.text() if self.checkbox_starts_by.isChecked() else None,
-            'not_starts_by': self.input_not_starts_by.text() if self.checkbox_not_starts_by.isChecked() else None,
-            'not_includes_by': self.input_not_includes_by.text() if self.checkbox_not_includes_by.isChecked() else None,
-            'ends_by': self.input_ends_by.text() if self.checkbox_ends_by.isChecked() else None,
-            'bigger_than': self.input_bigger_than.text() if self.checkbox_bigger_than.isChecked() else None,
-            'is_k_digits': self.input_is_k_digits.text() if self.checkbox_is_k_digits.isChecked() else None,
-            'is_even': self.even_checkbox.isChecked(),
-            'is_odd': self.odd_checkbox.isChecked(),
-            'all_different': self.all_diff_checkbox.isChecked()
+            'drawn_cards': self.input_drawn.text() if self.checkbox_drawn.isChecked() else None,
+            'num_even': self.input_even.text() if self.checkbox_even.isChecked() else None,
+            'sum_divi': self.input_sum_divi.text() if self.checkbox_sum_divisible.isChecked() else None,
+            'pro_divi': self.input_product_divi.text() if self.checkbox_product_divisible.isChecked() else None,
         }
 
-        result, card_list = evaluate_conditions(int(self.input_start_at.text()), int(self.input_end_at.text()), input_digits, conditions1)
+        if self.checkbox_drawn.isChecked():
+            drawn_cards = int(self.input_drawn.text())
+            conditions1['drawn_cards'] = drawn_cards
 
-        # display_text = f"Số lượng số thỏa mãn: {result}\n" + ", ".join(card_list)
-        # self.result_output.setText(display_text)
+        if self.checkbox_even.isChecked():
+            num_even = int(self.input_even.text())
+            conditions1['num_even'] = num_even
+
+        if self.checkbox_sum_divisible.isChecked():
+            sum_divi = self.input_sum_divi.text()
+            conditions1['sum_divi'] = sum_divi
+
+        if self.checkbox_product_divisible.isChecked():
+            pro_divi = self.input_product_divi.text()
+            conditions1['pro_divi'] = pro_divi
+
+        print(f"Conditions1: {conditions1}")
+
+        input_tag_list = self.input_cards.text()
+        
+        if input_tag_list:
+            result, card_list = count_cards(None, None, input_tag_list, conditions1)
+        else:
+            result, card_list = count_cards(int(self.input_start_at.text()), int(self.input_end_at.text()), None, conditions1)
+
+        # result, card_list = count_cards(int(self.input_start_at.text()), int(self.input_end_at.text()), input_tag_list, conditions1)
+
+        def format_card_list(card_list, max_line_length=120):
+            lines = []
+            current_line = ""
+            for card in card_list:
+                card_str = str(card)
+                if len(current_line) + len(card_str) + 2 > max_line_length:  # +2 for ", "
+                    lines.append(current_line)
+                    current_line = card_str
+                else:
+                    if current_line:
+                        current_line += ", " + card_str
+                    else:
+                        current_line = card_str
+            if current_line:
+                lines.append(current_line)
+            return "\n".join(lines)
+
+        # Sử dụng hàm này để định dạng chuỗi kết quả
+        result, card_list = count_cards(int(self.input_start_at.text()), int(self.input_end_at.text()), input_tag_list, conditions1)
+        formatted_card_list = format_card_list(card_list)
+        display_text = f"Số lượng thẻ thỏa mãn: {result}\n[" + formatted_card_list + "]"
+        self.result_output.setText(display_text)
 
 
 if __name__ == "__main__":
