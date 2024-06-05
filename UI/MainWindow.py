@@ -8,7 +8,7 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Bài Toán Đếm Số & Rút Thẻ")
-        self.resize(620, 700)
+        self.resize(620, 750)
         self.setup_ui()
 
     def setup_ui(self):
@@ -76,6 +76,9 @@ class MainWindow(QWidget):
         return layout
 
     def handle_calculation(self):
+        self.result_output.setText("Waiting...")
+        QApplication.processEvents()
+
         input_digits = self.input_numbers.text().replace(',', '') 
 
         conditions = {
@@ -142,6 +145,8 @@ class MainWindow(QWidget):
         self.result_output.setText(display_text)
 
     def handle_drawcard_calculation(self):
+        self.result_output.setText("Waiting...")
+        QApplication.processEvents()
         # input_tag_list = self.input_cards.text().replace(',', '')
 
         conditions1 = {
@@ -201,9 +206,3 @@ class MainWindow(QWidget):
         display_text = f"Số lượng thẻ thỏa mãn: {result}\n[" + formatted_card_list + "]"
         self.result_output.setText(display_text)
 
-
-if __name__ == "__main__":
-    app = QApplication([])
-    window = MainWindow()
-    window.show()
-    app.exec()
