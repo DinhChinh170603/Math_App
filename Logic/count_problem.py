@@ -38,7 +38,7 @@ def divisible_by(number, divisors):
     return all(number % int(divisor) == 0 for divisor in divisors.split(','))
 
 def ends_by(number, ends):
-    return str(number).endswith(ends)
+    return number < int(ends)
 
 def bigger_than(number, bigger_than):
     return number > int(bigger_than)
