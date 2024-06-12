@@ -1,76 +1,68 @@
 from itertools import combinations
-
-from networkx import draw
+from multiprocessing import Pool, cpu_count
 
 def count_cards(start, end, tag_list, conditions):
-    # If 
     if tag_list:
         drawn_cards = [int(tag) for tag in tag_list.split(',') if tag.strip().isdigit()]
-        print(f"Tag list: {tag_list}")
     else:
         start = int(start)
         end = int(end)
-        drawn_cards = range(start, end + 1)
-        print(f"Start: {start}, End: {end}")
+        drawn_cards = list(range(start, end + 1))
+
+    try:
+        drawn_cards_len = int(conditions.get('drawn_cards', len(drawn_cards)))
+    except ValueError:
+        drawn_cards_len = len(drawn_cards)
+
+    valid_combinations = generate_combinations(drawn_cards, drawn_cards_len, conditions)
+    return len(valid_combinations), valid_combinations
+
+def generate_combinations(drawn_cards, drawn_cards_len, conditions):
+    all_combinations = list(combinations(drawn_cards, drawn_cards_len))
+    chunk_size = 10**4  # Điều chỉnh chunk_size để phù hợp với hệ thống của bạn
+    comb_chunks = [all_combinations[i:i + chunk_size] for i in range(0, len(all_combinations), chunk_size)]
     
-    valid_cards = filter_cards(drawn_cards, conditions)
-    return len(valid_cards), valid_cards
-
-# def check_conditions(cards, conditions):
-#     """
-#     
-#     """
-#     if 'drawn_cards' in conditions and conditions['drawn_cards'] is not None and not drawn_cards(cards, conditions['drawn_cards']):
-#         return False
-#     if 'num_even' in conditions and conditions['num_even'] is not None and not num_even(cards, conditions['num_even']):
-#         return False
-#     if 'sum_divi' in conditions and conditions['sum_divi'] is not None and not sum_divi(cards, conditions['sum_divi']):
-#         return False
-#     if 'pro_divi' in conditions and conditions['pro_divi'] is not None and not pro_divi(cards, conditions['pro_divi']):
-#         return False
-#     return True
-
-def filter_cards(drawn_cards, conditions):
-    valid_cards = []
-    num_cards = conditions.get('drawn_cards', None)
-    num_even = conditions.get('num_even', None)
-    sum_divi = conditions.get('sum_divi', None)
-    pro_divi = conditions.get('pro_divi', None)
-
-    for card_set in combinations(drawn_cards, num_cards):
-        total_sum, total_product = calculate_sum_and_product(card_set)
-        if num_even is not None and not check_even_count(card_set, num_even):
-            continue
-        if sum_divi is not None and not check_divisibility(total_sum, sum_divi):
-            continue
-        if pro_divi is not None and not check_divisibility(total_product, pro_divi):
-            continue
-        valid_cards.append(card_set)
+    with Pool(cpu_count()) as pool:
+        results = pool.starmap(check_combinations_chunk, [(chunk, conditions) for chunk in comb_chunks])
     
-    return valid_cards
+    valid_combinations = [item for sublist in results for item in sublist]
+    return valid_combinations
 
-def calculate_sum_and_product(cards):
-    card_nums = [int(card) for card in cards]
-    total_sum = sum(card_nums)
+def check_combinations_chunk(comb_chunk, conditions):
+    valid_combinations = []
+    for combo in comb_chunk:
+        if meets_conditions(combo, conditions):
+            valid_combinations.append(combo)
+    return valid_combinations
+
+def meets_conditions(combo, conditions):
+    even_count = 0
+    total_sum = 0
     total_product = 1
-    for num in card_nums:
+
+    for num in combo:
+        if num % 2 == 0:
+            even_count += 1
+        total_sum += num
         total_product *= num
-    return total_sum, total_product
 
-def drawn_cards(cards, drawn_cards):
-    return len(cards) == drawn_cards
+    if 'num_even' in conditions and conditions['num_even'] is not None:
+        if even_count != int(conditions['num_even']):
+            return False
 
-def check_even_count(card_set, num_even):
-    even_count = sum(1 for card in card_set if card % 2 == 0)
-    return even_count == num_even
+    if 'sum_divi' in conditions and conditions['sum_divi'] is not None:
+        if not check_divisibility(total_sum, conditions['sum_divi']):
+            return False
+
+    if 'pro_divi' in conditions and conditions['pro_divi'] is not None:
+        if not check_divisibility(total_product, conditions['pro_divi']):
+            return False
+
+    return combo
 
 def check_divisibility(total, divisors):
-    if divisors is None:
-        return False
-
     try:
         divisors = map(int, divisors.split(','))
         return all(total % divisor == 0 for divisor in divisors)
     except ValueError:
-        print(f"Error: Invalid input in divisors - {divisors}")
         return False

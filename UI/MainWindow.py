@@ -1,8 +1,38 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QCheckBox, QLabel, QHBoxLayout, QTextEdit, QSpinBox
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QCheckBox, QLabel, QTextEdit, QSpinBox
+from PyQt6.QtCore import QThread, pyqtSignal
 from .widgets import create_count_groupbox, create_draw_groupbox
 from Logic.count_problem import count_numbers
 from Logic.draw_problem import count_cards
+
+class CalculationThread(QThread):
+    results_ready = pyqtSignal(int, list)
+
+    def __init__(self, digits, conditions):
+        super().__init__()
+        self.digits = digits
+        self.conditions = conditions
+
+    def run(self):
+        result, number_list = count_numbers(self.digits, self.conditions)
+        self.results_ready.emit(result, number_list)
+
+class CardCalculationThread(QThread):
+    results_ready = pyqtSignal(object, list)
+
+    def __init__(self, start, end, cards, conditions):
+        super().__init__()
+        self.start_value = start
+        self.end_value = end
+        self.cards = cards
+        self.conditions = conditions
+
+    def run(self):
+        if self.cards:
+            result, card_list = count_cards(None, None, self.cards, self.conditions)
+        else:
+            result, card_list = count_cards(self.start_value, self.end_value, None, self.conditions)
+        self.results_ready.emit(result, card_list)
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -13,16 +43,13 @@ class MainWindow(QWidget):
 
     def setup_ui(self):
         main_layout = QVBoxLayout(self)
-        
-        # Tạo các widget từ widgets.py
         self.count_groupbox = create_count_groupbox()
         main_layout.addWidget(self.count_groupbox)
         self.draw_groupbox = create_draw_groupbox()
         main_layout.addWidget(self.draw_groupbox)
-
-        # Tạo kết quả hiển thị
         self.result_display = self.create_result_display()
         main_layout.addLayout(self.result_display)
+        self.setup_connections()
 
         # Truy xuất và lưu trữ các widget cụ thể
         self.input_numbers = self.count_groupbox.findChild(QLineEdit, "input_numbers")
@@ -58,29 +85,39 @@ class MainWindow(QWidget):
         self.checkbox_product_divisible = self.draw_groupbox.findChild(QCheckBox, "checkbox_input_product_divi")
         self.input_product_divi = self.draw_groupbox.findChild(QLineEdit, "input_product_divi")
 
-        # Lấy nút tính toán và kết nối với hàm xử lý
-        calculate_button = self.count_groupbox.findChild(QPushButton, "calculate_button")
-        calculate_button1 = self.draw_groupbox.findChild(QPushButton, "calculate_button1")
-
-        # Kết nối sự kiện
-        calculate_button.clicked.connect(self.handle_calculation)
-        calculate_button1.clicked.connect(self.handle_drawcard_calculation)
-
     def create_result_display(self):
         layout = QVBoxLayout()
         self.result_output = QTextEdit()
         self.result_output.setReadOnly(True)
-        self.result_output.setObjectName("result_output")
-
-        layout.addWidget(self.result_output, 1)
+        layout.addWidget(self.result_output)
         return layout
 
     def handle_calculation(self):
         self.result_output.setText("Waiting...")
         QApplication.processEvents()
+        conditions = self.setup_conditions()
+        self.calculation_thread = CalculationThread(self.input_numbers.text().replace(',', ''), conditions)
+        self.calculation_thread.results_ready.connect(self.update_results)
+        self.calculation_thread.start()
 
-        input_digits = self.input_numbers.text().replace(',', '') 
+    def handle_drawcard_calculation(self):
+        self.result_output.setText("Waiting...")
+        QApplication.processEvents()
+        conditions = self.setup_draw_conditions()
+        start_value = int(self.input_start_at.text())
+        end_value = int(self.input_end_at.text())
+        card_value = self.input_cards.text() if self.input_cards.text() else None
+        self.card_calculation_thread = CardCalculationThread(start_value, end_value, card_value, conditions)
+        self.card_calculation_thread.results_ready.connect(self.update_draw_results)
+        self.card_calculation_thread.start()
 
+    def setup_connections(self):
+        calculate_button = self.count_groupbox.findChild(QPushButton, "calculate_button")
+        calculate_button.clicked.connect(self.handle_calculation)
+        calculate_button1 = self.draw_groupbox.findChild(QPushButton, "calculate_button1")
+        calculate_button1.clicked.connect(self.handle_drawcard_calculation)
+
+    def setup_conditions(self):
         conditions = {
             'has_k_digits': self.input_k_digits.text() if self.checkbox_input_k_digits.isChecked() else None,
             'divisible_by': self.input_divisible_by.text() if self.checkbox_divisible_by.isChecked() else None,
@@ -94,95 +131,23 @@ class MainWindow(QWidget):
             'is_odd': self.odd_checkbox.isChecked(),
             'all_different': self.all_diff_checkbox.isChecked()
         }
-        print(f"Digits: {input_digits}")
         print(f"Conditions: {conditions}")
+        return conditions
 
-        if self.checkbox_input_k_digits.isChecked():
-            try:
-                has_k_digits = int(self.input_k_digits.text())
-                conditions['has_k_digits'] = has_k_digits
-                print(f"Has k digits: {has_k_digits}")
-            except ValueError:
-                print("Invalid number of digits input.")
-
-        if self.checkbox_starts_by.isChecked():
-            starts_by = self.input_starts_by.text()
-            conditions['starts_by'] = starts_by
-            print(f"Starts by: {starts_by}")
-
-        if self.checkbox_not_starts_by.isChecked():
-            not_starts_by = self.input_not_starts_by.text()
-            conditions['not_starts_by'] = not_starts_by
-            print(f"Not starts by: {not_starts_by}")
-        
-        if self.checkbox_not_includes_by.isChecked():
-            not_includes_by = self.input_not_includes_by
-            print(f"Not includes by: {not_includes_by}")
-
-        if self.checkbox_divisible_by.isChecked():
-            divisible_by = self.input_divisible_by.text()
-            conditions['divisible_by'] = divisible_by
-            print(f"Divisible by: {divisible_by}")
-
-        if self.checkbox_ends_by.isChecked():
-            ends_by = int(self.input_ends_by.text())
-            conditions['ends_by'] = ends_by
-            print(f"Ends by: {ends_by}")
-
-        if self.checkbox_bigger_than.isChecked():
-            bigger_than = int(self.input_bigger_than.text())
-            conditions['bigger_than'] = bigger_than
-            print(f"Bigger than: {bigger_than}")
-
-        if self.checkbox_is_k_digits.isChecked():
-            is_k_digits = self.input_is_k_digits.text()
-            conditions['is_k_digits'] = is_k_digits
-            print(f"Is k digits: {is_k_digits}")
-
-        result, number_list = count_numbers(input_digits, conditions)
-
-        display_text = f"Số lượng số thỏa mãn: {result}\n" + ", ".join(number_list)
-        self.result_output.setText(display_text)
-
-    def handle_drawcard_calculation(self):
-        self.result_output.setText("Waiting...")
-        QApplication.processEvents()
-        # input_tag_list = self.input_cards.text().replace(',', '')
-
+    def setup_draw_conditions(self):
         conditions1 = {
             'drawn_cards': self.input_drawn.text() if self.checkbox_drawn.isChecked() else None,
             'num_even': self.input_even.text() if self.checkbox_even.isChecked() else None,
             'sum_divi': self.input_sum_divi.text() if self.checkbox_sum_divisible.isChecked() else None,
-            'pro_divi': self.input_product_divi.text() if self.checkbox_product_divisible.isChecked() else None,
+            'pro_divi': self.input_product_divi.text() if self.checkbox_product_divisible.isChecked() else None
         }
+        return conditions1
 
-        if self.checkbox_drawn.isChecked():
-            drawn_cards = int(self.input_drawn.text())
-            conditions1['drawn_cards'] = drawn_cards
+    def update_results(self, result, number_list):
+        display_text = f"Số lượng số thỏa mãn: {result}\n" + ", ".join(map(str, number_list))
+        self.result_output.setText(display_text)
 
-        if self.checkbox_even.isChecked():
-            num_even = int(self.input_even.text())
-            conditions1['num_even'] = num_even
-
-        if self.checkbox_sum_divisible.isChecked():
-            sum_divi = self.input_sum_divi.text()
-            conditions1['sum_divi'] = sum_divi
-
-        if self.checkbox_product_divisible.isChecked():
-            pro_divi = self.input_product_divi.text()
-            conditions1['pro_divi'] = pro_divi
-
-        print(f"Conditions1: {conditions1}")
-
-        input_tag_list = self.input_cards.text()
-        
-        if input_tag_list:
-            result, card_list = count_cards(None, None, input_tag_list, conditions1)
-        else:
-            result, card_list = count_cards(int(self.input_start_at.text()), int(self.input_end_at.text()), None, conditions1)
-
-        # result, card_list = count_cards(int(self.input_start_at.text()), int(self.input_end_at.text()), input_tag_list, conditions1)
-
+    def update_draw_results(self, result, card_list):
         def format_card_list(card_list, max_line_length=120):
             lines = []
             current_line = ""
@@ -199,10 +164,6 @@ class MainWindow(QWidget):
             if current_line:
                 lines.append(current_line)
             return "\n".join(lines)
-
-        # Sử dụng hàm này để định dạng chuỗi kết quả
-        result, card_list = count_cards(int(self.input_start_at.text()), int(self.input_end_at.text()), input_tag_list, conditions1)
         formatted_card_list = format_card_list(card_list)
         display_text = f"Số lượng thẻ thỏa mãn: {result}\n[" + formatted_card_list + "]"
         self.result_output.setText(display_text)
-
