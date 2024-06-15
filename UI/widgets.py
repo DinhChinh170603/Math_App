@@ -61,12 +61,12 @@ def create_count_groupbox():
 
     # Checkbox và input cho "Không có mặt các chữ số"
     checkbox_not_includes_by = QCheckBox("Không có mặt các chữ số")
-    layout.addWidget(checkbox_not_includes_by, 4, 2)
+    layout.addWidget(checkbox_not_includes_by, 6, 2)
     input_not_includes_by = QLineEdit()
     input_not_includes_by.setObjectName("not_includes_input")
     input_not_includes_by.setPlaceholderText("Nhập a,b,c,...")
     input_not_includes_by.setEnabled(False)
-    layout.addWidget(input_not_includes_by, 4, 3)
+    layout.addWidget(input_not_includes_by, 6, 3)
     checkbox_not_includes_by.toggled.connect(lambda checked: input_not_includes_by.setEnabled(checked))
     checkbox_not_includes_by.setObjectName("checkbox_not_includes_by")
 
@@ -110,13 +110,29 @@ def create_count_groupbox():
     even_checkbox.setObjectName("even_checkbox")
     layout.addWidget(even_checkbox, 1, 2)
 
+    palindrome_checkbox = QCheckBox("Số đối xứng")
+    palindrome_checkbox.setObjectName("palindrome_checkbox")
+    layout.addWidget(palindrome_checkbox, 2, 2)
+
     odd_checkbox = QCheckBox("Số lẻ")
     odd_checkbox.setObjectName("odd_checkbox")
-    layout.addWidget(odd_checkbox, 2, 2)
+    layout.addWidget(odd_checkbox, 1, 3)
+
+    prime_checkbox = QCheckBox("Số nguyên tố")
+    prime_checkbox.setObjectName("prime_checkbox")
+    layout.addWidget(prime_checkbox, 2, 3)
+
+    square_checkbox = QCheckBox("Số chính phương")
+    square_checkbox.setObjectName("square_checkbox")
+    layout.addWidget(square_checkbox, 3, 2)
+
+    cube_checkbox = QCheckBox("Số lập phương")
+    cube_checkbox.setObjectName("cube_checkbox")
+    layout.addWidget(cube_checkbox, 3, 3)
 
     all_diff_checkbox = QCheckBox("Chữ số khác nhau")
     all_diff_checkbox.setObjectName("all_different")
-    layout.addWidget(all_diff_checkbox, 3, 2)
+    layout.addWidget(all_diff_checkbox, 4, 2)
 
     # Nút tính toán
     calculate_button = QPushButton("Tính toán bài đếm số")
@@ -149,6 +165,7 @@ def create_count_groupbox():
     """)
 
     layout.addWidget(calculate_button, 7, 0, 1, 5)
+    print("start")
 
     return groupbox
 

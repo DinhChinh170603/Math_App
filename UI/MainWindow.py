@@ -71,6 +71,10 @@ class MainWindow(QWidget):
         self.checkbox_is_k_digits = self.count_groupbox.findChild(QCheckBox, "checkbox_is_k_digits")
         self.even_checkbox = self.count_groupbox.findChild(QCheckBox, "even_checkbox")
         self.odd_checkbox = self.count_groupbox.findChild(QCheckBox, "odd_checkbox")
+        self.palindrome_checkbox = self.count_groupbox.findChild(QCheckBox, "palindrome_checkbox")
+        self.prime_checkbox = self.count_groupbox.findChild(QCheckBox, "prime_checkbox")
+        self.square_checkbox = self.count_groupbox.findChild(QCheckBox, "square_checkbox")
+        self.cube_checkbox = self.count_groupbox.findChild(QCheckBox, "cube_checkbox")
         self.all_diff_checkbox = self.count_groupbox.findChild(QCheckBox, "all_different")
 
         self.input_cards = self.draw_groupbox.findChild(QLineEdit, "input_cards")
@@ -129,6 +133,10 @@ class MainWindow(QWidget):
             'is_k_digits': self.input_is_k_digits.text() if self.checkbox_is_k_digits.isChecked() else None,
             'is_even': self.even_checkbox.isChecked(),
             'is_odd': self.odd_checkbox.isChecked(),
+            'is_palindrome': self.palindrome_checkbox.isChecked(),
+            'is_prime': self.prime_checkbox.isChecked(),
+            'is_square': self.square_checkbox.isChecked(),
+            'is_cube': self.cube_checkbox.isChecked(),
             'all_different': self.all_diff_checkbox.isChecked()
         }
         print(f"Conditions: {conditions}")

@@ -1,6 +1,7 @@
 import sys
 from PyQt6.QtWidgets import QApplication
 from UI.MainWindow import MainWindow  
+from multiprocessing import freeze_support
 
 def main():
     app = QApplication(sys.argv)  
@@ -9,4 +10,5 @@ def main():
     sys.exit(app.exec())          
 
 if __name__ == "__main__":
+    freeze_support()
     main()

@@ -20,6 +20,10 @@ def check_conditions(number, conditions):
         'is_k_digits': is_k_digits,
         'is_even': lambda num, _: num % 2 == 0 if 'is_even' in conditions and conditions['is_even'] else True,
         'is_odd': lambda num, _: num % 2 != 0 if 'is_odd' in conditions and conditions['is_odd'] else True,
+        'is_palindrome': lambda num, _: is_palindrome(num) if 'is_palindrome' in conditions and conditions['is_palindrome'] else True,
+        'is_prime': lambda num, _: is_prime(num) if 'is_prime' in conditions and conditions['is_prime'] else True,
+        'is_square': lambda num, _: is_square(num) if 'is_square' in conditions and conditions['is_square'] else True,
+        'is_cube': lambda num, _: is_cube(num) if 'is_cube' in conditions and conditions['is_cube'] else True,
         'all_different': lambda num, _: all_different(num) if 'all_different' in conditions and conditions['all_different'] else True
     }
     return all(condition_funcs[cond_key](int(number), cond_value) if cond_value is not None else True
@@ -45,6 +49,25 @@ def bigger_than(number, bigger_than):
 
 def is_k_digits(number, k):
     return all(digit in str(number) for digit in k.split(','))
+
+def is_palindrome(number, _=None):
+    s = str(number)
+    return s == s[::-1]
+
+def is_prime(number, _=None):
+    if number <= 1:
+        return False
+    for i in range(2, int(number**0.5) + 1):
+        if number % i == 0:
+            return False
+    return True
+
+def is_square(number, _=None):
+    return int(number**0.5) ** 2 == number
+
+def is_cube(number, _=None):
+    return int(round(number**(1/3))) ** 3 == number
+
 
 def all_different(number, _=None): 
     return len(set(str(number))) == len(str(number))
