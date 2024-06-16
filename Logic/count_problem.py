@@ -68,7 +68,6 @@ def is_square(number, _=None):
 def is_cube(number, _=None):
     return int(round(number**(1/3))) ** 3 == number
 
-
 def all_different(number, _=None): 
     return len(set(str(number))) == len(str(number))
 

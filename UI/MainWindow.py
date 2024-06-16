@@ -118,7 +118,7 @@ class MainWindow(QWidget):
             self.result_output.setText("Vui lòng chọn và nhập số chữ số mong muốn!")
             return
         # Add additional checks for any key condition that requires a valid integer but is empty or invalid
-        elif any(conditions[k] is not None and not conditions[k].isdigit() for k in ['divisible_by', 'bigger_than', 'ends_by', 'is_k_digits', 'starts_by', 'not_starts_by', 'not_includes_by'] if k in conditions):
+        elif any(conditions[k] is not None and not conditions[k] for k in ['divisible_by', 'bigger_than', 'ends_by', 'is_k_digits', 'starts_by', 'not_starts_by', 'not_includes_by'] if k in conditions):
             self.result_output.setText("Vui lòng kiểm tra lại các trường nhập còn thiếu!")
             return
         
