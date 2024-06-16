@@ -100,6 +100,16 @@ class MainWindow(QWidget):
         self.result_output.setText("Waiting...")
         QApplication.processEvents()
         conditions = self.setup_conditions()
+        if any(v is None for k, v in conditions.items() if 'input' in k and self.count_groupbox.findChild(QCheckBox, f"checkbox_{k}").isChecked()):
+            missing_inputs = [k.replace('input_', '') for k, v in conditions.items() if v is None and 'input' in k and self.count_groupbox.findChild(QCheckBox, f"checkbox_{k}").isChecked()]
+            self.result_output.setText(f"Vui lòng nhập thông tin cho: {', '.join(missing_inputs)}")
+            return
+        
+        # Add additional checks for any key condition that requires a valid integer but is empty or invalid
+        if any(conditions[k] is not None and not conditions[k].isdigit() for k in ['divisible_by', 'bigger_than', 'ends_by', 'is_k_digits', 'starts_by', 'not_starts_by', 'not_includes_by',] if k in conditions):
+            self.result_output.setText("Vui lòng kiểm tra lại các trường nhập còn thiếu!")
+            return
+        
         self.calculation_thread = CalculationThread(self.input_numbers.text().replace(',', ''), conditions)
         self.calculation_thread.results_ready.connect(self.update_results)
         self.calculation_thread.start()
@@ -108,6 +118,10 @@ class MainWindow(QWidget):
         self.result_output.setText("Waiting...")
         QApplication.processEvents()
         conditions = self.setup_draw_conditions()
+        if any(v is None for k, v in conditions.items() if 'input' in k and self.draw_groupbox.findChild(QCheckBox, f"checkbox_{k}").isChecked()):
+            missing_inputs = [k.replace('input_', '') for k, v in conditions.items() if v is None and 'input' in k and self.draw_groupbox.findChild(QCheckBox, f"checkbox_{k}").isChecked()]
+            self.result_output.setText(f"Vui lòng nhập thông tin cho: {', '.join(missing_inputs)}")
+            return
         start_value = int(self.input_start_at.text())
         end_value = int(self.input_end_at.text())
         card_value = self.input_cards.text() if self.input_cards.text() else None
