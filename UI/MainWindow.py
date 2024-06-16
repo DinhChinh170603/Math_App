@@ -1,6 +1,8 @@
+from msilib.schema import CheckBox
 import sys
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QCheckBox, QLabel, QTextEdit, QSpinBox
 from PyQt6.QtCore import QThread, pyqtSignal
+from PyQt6.QtGui import QIcon, QScreen
 from .widgets import create_count_groupbox, create_draw_groupbox
 from Logic.count_problem import count_numbers
 from Logic.draw_problem import count_cards
@@ -38,7 +40,11 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Bài Toán Đếm Số & Rút Thẻ")
-        self.resize(620, 750)
+        screen = QApplication.primaryScreen()
+        size = screen.size()
+        screen_height = size.height() - 90
+        self.resize(650, screen_height)
+        self.setWindowIcon(QIcon('D:/TMQ-Math/UI/assets/Logo.png'))
         self.setup_ui()
 
     def setup_ui(self):
@@ -105,8 +111,14 @@ class MainWindow(QWidget):
             self.result_output.setText(f"Vui lòng nhập thông tin cho: {', '.join(missing_inputs)}")
             return
         
+        if not self.input_numbers.text().strip():
+            self.result_output.setText("Vui lòng nhập chuỗi chữ số mong muốn!")
+            return
+        elif not self.checkbox_input_k_digits.isChecked() and not self.input_k_digits.text().strip():
+            self.result_output.setText("Vui lòng chọn và nhập số chữ số mong muốn!")
+            return
         # Add additional checks for any key condition that requires a valid integer but is empty or invalid
-        if any(conditions[k] is not None and not conditions[k].isdigit() for k in ['divisible_by', 'bigger_than', 'ends_by', 'is_k_digits', 'starts_by', 'not_starts_by', 'not_includes_by',] if k in conditions):
+        elif any(conditions[k] is not None and not conditions[k].isdigit() for k in ['divisible_by', 'bigger_than', 'ends_by', 'is_k_digits', 'starts_by', 'not_starts_by', 'not_includes_by'] if k in conditions):
             self.result_output.setText("Vui lòng kiểm tra lại các trường nhập còn thiếu!")
             return
         
@@ -118,10 +130,20 @@ class MainWindow(QWidget):
         self.result_output.setText("Waiting...")
         QApplication.processEvents()
         conditions = self.setup_draw_conditions()
+
         if any(v is None for k, v in conditions.items() if 'input' in k and self.draw_groupbox.findChild(QCheckBox, f"checkbox_{k}").isChecked()):
             missing_inputs = [k.replace('input_', '') for k, v in conditions.items() if v is None and 'input' in k and self.draw_groupbox.findChild(QCheckBox, f"checkbox_{k}").isChecked()]
             self.result_output.setText(f"Vui lòng nhập thông tin cho: {', '.join(missing_inputs)}")
             return
+        
+        if not self.checkbox_drawn.isChecked() and not self.input_drawn.text().strip():
+            self.result_output.setText("Vui lòng chọn và nhập số thẻ trong một bộ!")
+            return
+        
+        if any(conditions[k] is not None and not conditions[k] for k in ['drawn_cards', 'num_even', 'sum_divi', 'pro_divi'] if k in conditions):
+            self.result_output.setText("Vui lòng kiểm tra lại các trường nhập còn thiếu!")
+            return
+        
         start_value = int(self.input_start_at.text())
         end_value = int(self.input_end_at.text())
         card_value = self.input_cards.text() if self.input_cards.text() else None
@@ -170,7 +192,7 @@ class MainWindow(QWidget):
         self.result_output.setText(display_text)
 
     def update_draw_results(self, result, card_list):
-        def format_card_list(card_list, max_line_length=120):
+        def format_card_list(card_list, max_line_length=125):
             lines = []
             current_line = ""
             for card in card_list:
