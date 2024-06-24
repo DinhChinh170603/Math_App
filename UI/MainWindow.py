@@ -1,7 +1,7 @@
 from msilib.schema import CheckBox
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QCheckBox, QLabel, QTextEdit, QSpinBox
-from PyQt6.QtCore import QThread, pyqtSignal
+from PyQt6.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, QLineEdit, QPushButton, QCheckBox, QLabel, QTextEdit, QSpinBox
+from PyQt6.QtCore import QThread, pyqtSignal, Qt
 from PyQt6.QtGui import QIcon, QScreen
 from .widgets import create_count_groupbox, create_draw_groupbox
 from Logic.count_problem import count_numbers
@@ -49,12 +49,38 @@ class MainWindow(QWidget):
 
     def setup_ui(self):
         main_layout = QVBoxLayout(self)
+
+        # Tạo QScrollArea để chứa các groupbox
+        self.scroll_area = QScrollArea(self)
+        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.scroll_area.setStyleSheet("""
+            QScrollBar:vertical {
+                border: 16px;
+                background-color: qlineargradient(
+                    x1: 0, y1: 0, x2: 0, y2: 1,
+                    stop: 0 rgba(47, 204, 113, 255),
+                    stop: 1 rgba(34, 152, 83, 255)
+                );
+                width: 5px;
+            }
+        """)
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_widget = QWidget()
+        self.scroll_area.setWidget(self.scroll_widget)
+        scroll_layout = QVBoxLayout(self.scroll_widget)
+
+        # Thêm các groupbox vào scroll_area
         self.count_groupbox = create_count_groupbox()
-        main_layout.addWidget(self.count_groupbox)
+        scroll_layout.addWidget(self.count_groupbox)
         self.draw_groupbox = create_draw_groupbox()
-        main_layout.addWidget(self.draw_groupbox)
+        scroll_layout.addWidget(self.draw_groupbox)
+        
+
+        # Khu vực hiển thị kết quả cố định
         self.result_display = self.create_result_display()
+        main_layout.addWidget(self.scroll_area) 
         main_layout.addLayout(self.result_display)
+
         self.setup_connections()
 
         # Truy xuất và lưu trữ các widget cụ thể
@@ -99,6 +125,7 @@ class MainWindow(QWidget):
         layout = QVBoxLayout()
         self.result_output = QTextEdit()
         self.result_output.setReadOnly(True)
+        self.result_output.setFixedHeight(300) 
         layout.addWidget(self.result_output)
         return layout
 

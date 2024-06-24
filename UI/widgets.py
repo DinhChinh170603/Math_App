@@ -275,3 +275,82 @@ def create_draw_groupbox():
     groupbox.setLayout(layout)
     return groupbox
 
+# def create_student_groupbox():
+#     groupbox = QGroupBox("Bài Toán Học Sinh")
+#     layout = QGridLayout()
+
+#     # SpinBoxes for selecting the start and end card
+#     layout.addWidget(QLabel("Nam:"), 0, 0) 
+#     input_man = QSpinBox()
+#     input_man.setRange(0, 1000)
+#     input_man.setObjectName("man_input")
+#     layout.addWidget(input_man, 0, 1) 
+
+#     layout.addWidget(QLabel("Nữ:"), 0, 2)  
+#     input_woman = QSpinBox()
+#     input_woman.setRange(0, 1000)
+#     input_woman.setObjectName("woman_input")
+#     layout.addWidget(input_woman, 0, 3)
+
+#     # Checkboxes for conditions
+#     checkbox_inline = QCheckBox("Bàn thẳng")
+#     layout.addWidget(checkbox_inline, 2, 0)
+#     checkbox_inline.setObjectName("checkbox__inline")
+
+#     checkbox_circle = QCheckBox("Bàn tròn")
+#     layout.addWidget(checkbox_circle, 2, 2)
+#     checkbox_circle.setObjectName("checkbox_input_even")
+    
+#     checkbox_man_toge = QCheckBox("Có k nam cạnh nhau")
+#     layout.addWidget(checkbox_man_toge, 3, 0)
+#     input_man_toge = QLineEdit()
+#     input_man_toge.setObjectName("input_sum_divi")
+#     input_man_toge.setPlaceholderText("Nhập chữ số")
+#     input_man_toge.setEnabled(False)
+#     layout.addWidget(input_man_toge, 3, 1)
+#     checkbox_man_toge.toggled.connect(lambda checked: input_man_toge.setEnabled(checked))
+#     checkbox_man_toge.setObjectName("checkbox_input_man_toge")  
+
+#     checkbox_woman_toge = QCheckBox("Có k nữ cạnh nhau")
+#     layout.addWidget(checkbox_woman_toge, 3, 2)
+#     input_woman_toge = QLineEdit()
+#     input_woman_toge.setObjectName("input_sum_divi")
+#     input_woman_toge.setPlaceholderText("Nhập chữ số")
+#     input_woman_toge.setEnabled(False)
+#     layout.addWidget(input_woman_toge, 3, 3)
+#     checkbox_woman_toge.toggled.connect(lambda checked: input_woman_toge.setEnabled(checked))
+#     checkbox_woman_toge.setObjectName("checkbox_input_woman_toge")
+
+#     # Button to perform calculation
+#     calculate_button2 = QPushButton("Tính toán bài học sinh")
+#     calculate_button2.setObjectName("calculate_button2")
+#     calculate_button2.setStyleSheet("""
+#         QPushButton {
+#             background-color: qlineargradient(
+#                 spread:pad, 
+#                 x1:0.034, y1:0.034, 
+#                 x2:0.924, y2:0.920, 
+#                 stop:0 rgba(47, 204, 113, 255), 
+#                 stop:1 rgba(34, 152, 83, 255)
+#             );
+#             color: white;
+#             font-weight: bold;
+#             border: none;
+#             padding: 5px;
+#             border-radius: 5px;
+#             font-size: 12px;
+#         }
+#         QPushButton:hover {
+#             background-color: qlineargradient(
+#                 spread:pad, 
+#                 x1:0.034, y1:0.034, 
+#                 x2:0.924, y2:0.920, 
+#                 stop:0 rgba(67, 224, 133, 255), 
+#                 stop:1 rgba(44, 182, 113, 255)
+#             );
+#         }
+#     """)
+#     layout.addWidget(calculate_button2, 5, 0, 1, 4)  
+
+#     groupbox.setLayout(layout)
+#     return groupbox
