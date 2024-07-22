@@ -19,10 +19,10 @@ def count_cards(start, end, tag_list, conditions):
 
 def generate_combinations(drawn_cards, drawn_cards_len, conditions):
     all_combinations = list(combinations(drawn_cards, drawn_cards_len))
-    chunk_size = 10**4  # Điều chỉnh chunk_size để phù hợp với hệ thống của bạn
+    chunk_size = 10**5  # Điều chỉnh chunk_size để phù hợp với hệ thống của bạn
     comb_chunks = [all_combinations[i:i + chunk_size] for i in range(0, len(all_combinations), chunk_size)]
     
-    with Pool(cpu_count()) as pool:
+    with Pool(cpu_count() * 2) as pool:
         results = pool.starmap(check_combinations_chunk, [(chunk, conditions) for chunk in comb_chunks])
     
     valid_combinations = [item for sublist in results for item in sublist]

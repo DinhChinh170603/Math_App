@@ -79,7 +79,7 @@ def chunkify(lst, n):
 
 def count_numbers(digits, conditions):
     numbers = generate_numbers(digits, conditions)
-    num_chunks = min(32, len(numbers))  # Number of chunks/processes to create
+    num_chunks = min(64, len(numbers))  # Number of chunks/processes to create
     chunks = chunkify(numbers, num_chunks)
     
     with ProcessPoolExecutor() as executor:

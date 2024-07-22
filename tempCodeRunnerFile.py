@@ -1,0 +1,3 @@
+
+    freeze_support()
+    main()
