@@ -18,7 +18,8 @@
   <a target="code" href="///D:/TMQ-Math/main.py" type="text/plain"><tt>main.py</tt></a>
 <span class="moduletype">Script</span>  <div class="import">
 imports:
-    <a href="#PyQt6.QtWidgets">PyQt6.QtWidgets</a>
+    <a href="#PyQt6">PyQt6</a>
+ &#8226;   <a href="#PyQt6.QtWidgets">PyQt6.QtWidgets</a>
  &#8226;   <a href="#UI.MainWindow">UI.MainWindow</a>
  &#8226;   <a href="#_collections_abc">_collections_abc</a>
  &#8226;   <a href="#_weakrefset">_weakrefset</a>
@@ -275,6 +276,7 @@ imported by:
 imported by:
     <a href="#Logic.count_problem">Logic.count_problem</a>
  &#8226;   <a href="#Logic.draw_problem">Logic.draw_problem</a>
+ &#8226;   <a href="#Logic.partition_problem">Logic.partition_problem</a>
 
   </div>
 
@@ -292,7 +294,7 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#UI.MainWindow">UI.MainWindow</a>
+    <a href="#UI.view_models">UI.view_models</a>
 
   </div>
 
@@ -312,7 +314,29 @@ imports:
   </div>
   <div class="import">
 imported by:
+    <a href="#UI.view_models">UI.view_models</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="Logic.partition_problem"></a>
+  <a target="code" href="///D:/TMQ-Math/Logic/partition_problem.py" type="text/plain"><tt>Logic.partition_problem</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#Logic">Logic</a>
+ &#8226;   <a href="#collections">collections</a>
+ &#8226;   <a href="#datetime">datetime</a>
+ &#8226;   <a href="#itertools">itertools</a>
+ &#8226;   <a href="#math">math</a>
+ &#8226;   <a href="#os">os</a>
+
+  </div>
+  <div class="import">
+imported by:
     <a href="#UI.MainWindow">UI.MainWindow</a>
+ &#8226;   <a href="#UI.view_models">UI.view_models</a>
 
   </div>
 
@@ -335,6 +359,7 @@ imported by:
  &#8226;   <a href="#PyQt6.QtGui">PyQt6.QtGui</a>
  &#8226;   <a href="#PyQt6.QtWidgets">PyQt6.QtWidgets</a>
  &#8226;   <a href="#PyQt6.sip">PyQt6.sip</a>
+ &#8226;   <a href="#main.py">main.py</a>
 
   </div>
 
@@ -352,6 +377,7 @@ imported by:
     <a href="#PyQt6.QtGui">PyQt6.QtGui</a>
  &#8226;   <a href="#PyQt6.QtWidgets">PyQt6.QtWidgets</a>
  &#8226;   <a href="#UI.MainWindow">UI.MainWindow</a>
+ &#8226;   <a href="#UI.view_models">UI.view_models</a>
 
   </div>
 
@@ -386,6 +412,7 @@ imports:
   <div class="import">
 imported by:
     <a href="#UI.MainWindow">UI.MainWindow</a>
+ &#8226;   <a href="#UI.ui_utils">UI.ui_utils</a>
  &#8226;   <a href="#UI.widgets">UI.widgets</a>
  &#8226;   <a href="#main.py">main.py</a>
 
@@ -414,6 +441,8 @@ imported by:
 <span class="moduletype">Package</span>  <div class="import">
 imported by:
     <a href="#UI.MainWindow">UI.MainWindow</a>
+ &#8226;   <a href="#UI.ui_utils">UI.ui_utils</a>
+ &#8226;   <a href="#UI.view_models">UI.view_models</a>
  &#8226;   <a href="#UI.widgets">UI.widgets</a>
 
   </div>
@@ -425,14 +454,13 @@ imported by:
   <a target="code" href="///D:/TMQ-Math/UI/MainWindow.py" type="text/plain"><tt>UI.MainWindow</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
-    <a href="#Logic.count_problem">Logic.count_problem</a>
- &#8226;   <a href="#Logic.draw_problem">Logic.draw_problem</a>
+    <a href="#Logic.partition_problem">Logic.partition_problem</a>
  &#8226;   <a href="#PyQt6.QtCore">PyQt6.QtCore</a>
  &#8226;   <a href="#PyQt6.QtGui">PyQt6.QtGui</a>
  &#8226;   <a href="#PyQt6.QtWidgets">PyQt6.QtWidgets</a>
  &#8226;   <a href="#UI">UI</a>
+ &#8226;   <a href="#UI.view_models">UI.view_models</a>
  &#8226;   <a href="#UI.widgets">UI.widgets</a>
- &#8226;   <a href="#msilib.schema">msilib.schema</a>
  &#8226;   <a href="#sys">sys</a>
 
   </div>
@@ -445,12 +473,51 @@ imported by:
 </div>
 
 <div class="node">
+  <a name="UI.ui_utils"></a>
+  <a target="code" href="///D:/TMQ-Math/UI/ui_utils.py" type="text/plain"><tt>UI.ui_utils</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#PyQt6.QtWidgets">PyQt6.QtWidgets</a>
+ &#8226;   <a href="#UI">UI</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#UI.widgets">UI.widgets</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="UI.view_models"></a>
+  <a target="code" href="///D:/TMQ-Math/UI/view_models.py" type="text/plain"><tt>UI.view_models</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#Logic.count_problem">Logic.count_problem</a>
+ &#8226;   <a href="#Logic.draw_problem">Logic.draw_problem</a>
+ &#8226;   <a href="#Logic.partition_problem">Logic.partition_problem</a>
+ &#8226;   <a href="#PyQt6.QtCore">PyQt6.QtCore</a>
+ &#8226;   <a href="#UI">UI</a>
+ &#8226;   <a href="#os">os</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#UI.MainWindow">UI.MainWindow</a>
+
+  </div>
+
+</div>
+
+<div class="node">
   <a name="UI.widgets"></a>
   <a target="code" href="///D:/TMQ-Math/UI/widgets.py" type="text/plain"><tt>UI.widgets</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
     <a href="#PyQt6.QtWidgets">PyQt6.QtWidgets</a>
  &#8226;   <a href="#UI">UI</a>
+ &#8226;   <a href="#UI.ui_utils">UI.ui_utils</a>
 
   </div>
   <div class="import">
@@ -832,16 +899,6 @@ imported by:
   <tt>_md5</tt> <span class="moduletype"><i>(builtin module)</i></span>  <div class="import">
 imported by:
     <a href="#hashlib">hashlib</a>
-
-  </div>
-
-</div>
-
-<div class="node">
-  <a name="_msi"></a>
-  <tt>_msi</tt> <span class="moduletype"><tt>C:\Users\ASUS\miniconda3\DLLs\_msi.pyd</tt></span>  <div class="import">
-imported by:
-    <a href="#msilib">msilib</a>
 
   </div>
 
@@ -1781,7 +1838,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#_pydecimal">_pydecimal</a>
+    <a href="#Logic.partition_problem">Logic.partition_problem</a>
+ &#8226;   <a href="#_pydecimal">_pydecimal</a>
  &#8226;   <a href="#ast">ast</a>
  &#8226;   <a href="#collections.abc">collections.abc</a>
  &#8226;   <a href="#concurrent.futures._base">concurrent.futures._base</a>
@@ -2139,7 +2197,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#_strptime">_strptime</a>
+    <a href="#Logic.partition_problem">Logic.partition_problem</a>
+ &#8226;   <a href="#_strptime">_strptime</a>
  &#8226;   <a href="#calendar">calendar</a>
  &#8226;   <a href="#email.utils">email.utils</a>
  &#8226;   <a href="#http.cookiejar">http.cookiejar</a>
@@ -5240,8 +5299,7 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#msilib">msilib</a>
- &#8226;   <a href="#pathlib">pathlib</a>
+    <a href="#pathlib">pathlib</a>
  &#8226;   <a href="#shutil">shutil</a>
  &#8226;   <a href="#tracemalloc">tracemalloc</a>
  &#8226;   <a href="#urllib.request">urllib.request</a>
@@ -6271,6 +6329,7 @@ imported by:
 imported by:
     <a href="#Logic.count_problem">Logic.count_problem</a>
  &#8226;   <a href="#Logic.draw_problem">Logic.draw_problem</a>
+ &#8226;   <a href="#Logic.partition_problem">Logic.partition_problem</a>
  &#8226;   <a href="#_pydecimal">_pydecimal</a>
  &#8226;   <a href="#calendar">calendar</a>
  &#8226;   <a href="#collections">collections</a>
@@ -6438,7 +6497,8 @@ imported by:
   <a name="math"></a>
   <tt>math</tt> <span class="moduletype"><i>(builtin module)</i></span>  <div class="import">
 imported by:
-    <a href="#_pydatetime">_pydatetime</a>
+    <a href="#Logic.partition_problem">Logic.partition_problem</a>
+ &#8226;   <a href="#_pydatetime">_pydatetime</a>
  &#8226;   <a href="#_pydecimal">_pydecimal</a>
  &#8226;   <a href="#fractions">fractions</a>
  &#8226;   <a href="#random">random</a>
@@ -6478,47 +6538,6 @@ imported by:
 imported by:
     <a href="#multiprocessing.heap">multiprocessing.heap</a>
  &#8226;   <a href="#multiprocessing.shared_memory">multiprocessing.shared_memory</a>
-
-  </div>
-
-</div>
-
-<div class="node">
-  <a name="msilib"></a>
-  <a target="code" href="///C:/Users/ASUS/miniconda3/Lib/msilib/__init__.py" type="text/plain"><tt>msilib</tt></a>
-<span class="moduletype">Package</span>  <div class="import">
-imports:
-    <a href="#_msi">_msi</a>
- &#8226;   <a href="#fnmatch">fnmatch</a>
- &#8226;   <a href="#msilib">msilib</a>
- &#8226;   <a href="#os">os</a>
- &#8226;   <a href="#re">re</a>
- &#8226;   <a href="#string">string</a>
- &#8226;   <a href="#sys">sys</a>
- &#8226;   <a href="#tempfile">tempfile</a>
- &#8226;   <a href="#warnings">warnings</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#msilib">msilib</a>
- &#8226;   <a href="#msilib.schema">msilib.schema</a>
-
-  </div>
-
-</div>
-
-<div class="node">
-  <a name="msilib.schema"></a>
-  <a target="code" href="///C:/Users/ASUS/miniconda3/Lib/msilib/schema.py" type="text/plain"><tt>msilib.schema</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#msilib">msilib</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#UI.MainWindow">UI.MainWindow</a>
 
   </div>
 
@@ -7558,7 +7577,9 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#PyQt6">PyQt6</a>
+    <a href="#Logic.partition_problem">Logic.partition_problem</a>
+ &#8226;   <a href="#PyQt6">PyQt6</a>
+ &#8226;   <a href="#UI.view_models">UI.view_models</a>
  &#8226;   <a href="#_pyi_rth_utils">_pyi_rth_utils</a>
  &#8226;   <a href="#_pyi_rth_utils.qt">_pyi_rth_utils.qt</a>
  &#8226;   <a href="#argparse">argparse</a>
@@ -7586,7 +7607,6 @@ imported by:
  &#8226;   <a href="#lzma">lzma</a>
  &#8226;   <a href="#main.py">main.py</a>
  &#8226;   <a href="#mimetypes">mimetypes</a>
- &#8226;   <a href="#msilib">msilib</a>
  &#8226;   <a href="#multiprocessing.connection">multiprocessing.connection</a>
  &#8226;   <a href="#multiprocessing.context">multiprocessing.context</a>
  &#8226;   <a href="#multiprocessing.forkserver">multiprocessing.forkserver</a>
@@ -7988,7 +8008,6 @@ imported by:
  &#8226;   <a href="#locale">locale</a>
  &#8226;   <a href="#logging">logging</a>
  &#8226;   <a href="#main.py">main.py</a>
- &#8226;   <a href="#msilib">msilib</a>
  &#8226;   <a href="#pathlib">pathlib</a>
  &#8226;   <a href="#pickle">pickle</a>
  &#8226;   <a href="#pkgutil">pkgutil</a>
@@ -8448,7 +8467,6 @@ imported by:
  &#8226;   <a href="#email._header_value_parser">email._header_value_parser</a>
  &#8226;   <a href="#email.quoprimime">email.quoprimime</a>
  &#8226;   <a href="#logging">logging</a>
- &#8226;   <a href="#msilib">msilib</a>
  &#8226;   <a href="#ntpath">ntpath</a>
  &#8226;   <a href="#nturl2path">nturl2path</a>
  &#8226;   <a href="#urllib.request">urllib.request</a>
@@ -8585,7 +8603,6 @@ imported by:
  &#8226;   <a href="#logging">logging</a>
  &#8226;   <a href="#main.py">main.py</a>
  &#8226;   <a href="#mimetypes">mimetypes</a>
- &#8226;   <a href="#msilib">msilib</a>
  &#8226;   <a href="#multiprocessing">multiprocessing</a>
  &#8226;   <a href="#multiprocessing.connection">multiprocessing.connection</a>
  &#8226;   <a href="#multiprocessing.context">multiprocessing.context</a>
@@ -8698,7 +8715,6 @@ imports:
   <div class="import">
 imported by:
     <a href="#importlib.resources._common">importlib.resources._common</a>
- &#8226;   <a href="#msilib">msilib</a>
  &#8226;   <a href="#multiprocessing.connection">multiprocessing.connection</a>
  &#8226;   <a href="#multiprocessing.heap">multiprocessing.heap</a>
  &#8226;   <a href="#multiprocessing.synchronize">multiprocessing.synchronize</a>
@@ -9186,7 +9202,6 @@ imported by:
  &#8226;   <a href="#locale">locale</a>
  &#8226;   <a href="#logging">logging</a>
  &#8226;   <a href="#main.py">main.py</a>
- &#8226;   <a href="#msilib">msilib</a>
  &#8226;   <a href="#multiprocessing.forkserver">multiprocessing.forkserver</a>
  &#8226;   <a href="#multiprocessing.pool">multiprocessing.pool</a>
  &#8226;   <a href="#multiprocessing.resource_tracker">multiprocessing.resource_tracker</a>
