@@ -3,7 +3,11 @@ from PyQt6.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, QLi
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
 from .widgets import create_count_groupbox, create_draw_groupbox, create_partition_groupbox
-from .view_models import CalculationThread, CardCalculationThread, PartitionCalculationThread, ResultFormatter
+from .view_models import (
+    CalculationThread, CardCalculationThread, 
+    PartitionCalculationThread, ResultFormatter,
+    AsyncPartitionCalculationThread
+)
 from Logic.partition_problem import parse_partition_input, parse_labels_input
 
 class MainWindow(QWidget):
@@ -303,7 +307,8 @@ class MainWindow(QWidget):
                 self.partition_thread.stop()
                 self.partition_thread.wait()
                 
-            self.partition_thread = PartitionCalculationThread(counts, labels, is_circle)
+            # Use AsyncPartitionCalculationThread for better performance
+            self.partition_thread = AsyncPartitionCalculationThread(counts, labels, is_circle)
             self.partition_thread.results_ready.connect(self.update_partition_results)
             self.partition_thread.progress_updated.connect(self.update_partition_progress)
             self.partition_thread.start()
@@ -319,10 +324,14 @@ class MainWindow(QWidget):
 
     def update_partition_progress(self, progress, count):
         """Update UI with partition calculation progress"""
-        if progress < 100:  # Only update for partial progress
-            display_text = ResultFormatter.format_partition_progress(progress, count)
+        if progress <= 100:  # Update for all progress
+            if count == 0 and progress == 100:
+                display_text = "Không có cách xếp thỏa mãn với điều kiện đã cho."
+            else:
+                display_text = ResultFormatter.format_partition_progress(progress, count)
+            
             self.result_output.setText(display_text)
-            QApplication.processEvents()
+            QApplication.processEvents()  # Make sure UI updates
 
     def update_partition_results(self, count, arrangements, labels, result_file):
         """Update UI with partition results"""

@@ -54,3 +54,38 @@ def create_calculation_button(text, object_name):
         }
     """)
     return button
+
+def create_progress_button(text, object_name):
+    """Create a styled progress calculation button"""
+    button = QPushButton(text)
+    button.setObjectName(object_name)
+    button.setStyleSheet("""
+        QPushButton {
+            background-color: qlineargradient(
+                spread:pad, 
+                x1:0.034, y1:0.034, 
+                x2:0.924, y2:0.920, 
+                stop:0 rgba(41, 128, 185, 255), 
+                stop:1 rgba(52, 152, 219, 255)
+            );
+            color: white;
+            font-weight: bold;
+            border: none;
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        QPushButton:hover {
+            background-color: qlineargradient(
+                spread:pad, 
+                x1:0.034, y1:0.034, 
+                x2:0.924, y2:0.920, 
+                stop:0 rgba(52, 152, 219, 255), 
+                stop:1 rgba(41, 128, 185, 255)
+            );
+        }
+        QPushButton:disabled {
+            background-color: gray;
+        }
+    """)
+    return button

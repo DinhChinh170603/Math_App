@@ -1,4 +1,4 @@
-from PyQt6.QtCore import QObject, pyqtSignal, QThread
+from PyQt6.QtCore import QObject, pyqtSignal, QThread, QEventLoop
 from Logic.count_problem import count_numbers
 from Logic.draw_problem import count_cards
 from Logic.partition_problem import (
@@ -7,6 +7,9 @@ from Logic.partition_problem import (
     calculate_total_permutations, get_result_file_path
 )
 import os
+import asyncio
+import signal
+from Logic.async_partition_helper import run_partition_calculation
 
 class CalculationThread(QThread):
     results_ready = pyqtSignal(int, list)
@@ -93,6 +96,74 @@ class PartitionCalculationThread(QThread):
     def stop(self):
         self.running = False
 
+class AsyncPartitionCalculationThread(QThread):
+    results_ready = pyqtSignal(int, list, list, str)  # Count, arrangements, labels, file path
+    progress_updated = pyqtSignal(int, int)  # Progress percentage, Current count
+
+    def __init__(self, counts, labels=None, is_circle=False):
+        super().__init__()
+        self.counts = counts
+        self.labels = labels
+        self.is_circle = is_circle
+        self.running = True
+        self.result_file = None
+        self.loop = None
+
+    def run(self):
+        try:
+            elements = generate_elements(self.counts, self.labels)
+            
+            # Calculate total expected permutations
+            total_perms = calculate_total_permutations(elements)
+            
+            # For very large result sets, use file output
+            use_file_output = total_perms > 100000
+            
+            if use_file_output:
+                self.result_file = get_result_file_path(self.is_circle, self.labels)
+                self.progress_updated.emit(0, 0)
+            
+            # Create and run asyncio event loop
+            self.loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self.loop)
+            
+            # Run the async calculation
+            total_count, results = self.loop.run_until_complete(
+                run_partition_calculation(
+                    self.counts,
+                    elements, 
+                    self.is_circle,
+                    progress_callback=lambda progress, count: self.progress_updated.emit(progress, count),
+                    result_file=self.result_file if use_file_output else None
+                )
+            )
+            
+            if self.running:
+                if use_file_output:
+                    # Send back a sample of results for display
+                    sample_size = min(100, len(results))
+                    sample = results[:sample_size] if results else []
+                    self.results_ready.emit(total_count, sample, 
+                                          self.labels if self.labels else [], 
+                                          self.result_file)
+                else:
+                    self.results_ready.emit(len(results), results, 
+                                          self.labels if self.labels else [], 
+                                          "")
+        except Exception as e:
+            print(f"Async partition calculation error: {e}")
+            self.results_ready.emit(0, [], self.labels if self.labels else [], "")
+        finally:
+            if self.loop and not self.loop.is_closed():
+                self.loop.close()
+            
+    def stop(self):
+        self.running = False
+        if self.loop and not self.loop.is_closed():
+            # Cancel all running tasks in the loop
+            for task in asyncio.all_tasks(self.loop):
+                task.cancel()
+
 class ResultFormatter(QObject):
     """Handles the formatting of calculation results for display"""
     
@@ -177,4 +248,6 @@ class ResultFormatter(QObject):
     @staticmethod
     def format_partition_progress(progress, count):
         """Format partition calculation progress"""
+        if count == 0:
+            return f"Đang tính toán... {progress}% hoàn thành, chưa tìm được cách xếp thỏa mãn"
         return f"Đang tính toán... {progress}% hoàn thành, đã tìm được {count:,} cách xếp"
