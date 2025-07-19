@@ -1,4 +1,3 @@
-from msilib.schema import CheckBox
 import sys
 from PyQt6.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, QLineEdit, QPushButton, QCheckBox, QLabel, QTextEdit, QSpinBox
 from PyQt6.QtCore import QThread, pyqtSignal, Qt
@@ -43,7 +42,7 @@ class MainWindow(QWidget):
         screen = QApplication.primaryScreen()
         size = screen.size()
         screen_height = size.height() - 90
-        self.resize(650, screen_height)
+        self.resize(700, screen_height)
         self.setWindowIcon(QIcon('D:/TMQ-Math/UI/assets/Logo.png'))
         self.setup_ui()
 
@@ -87,19 +86,27 @@ class MainWindow(QWidget):
         self.input_numbers = self.count_groupbox.findChild(QLineEdit, "input_numbers")
         self.checkbox_input_k_digits = self.count_groupbox.findChild(QCheckBox, "checkbox_input_k_digits")
         self.input_k_digits = self.count_groupbox.findChild(QLineEdit, "input_k_digits")
-        self.checkbox_starts_by = self.count_groupbox.findChild(QCheckBox, "checkbox_starts_by")
-        self.input_starts_by = self.count_groupbox.findChild(QLineEdit, "starts_input")
-        self.checkbox_not_starts_by = self.count_groupbox.findChild(QCheckBox, "checkbox_not_starts_by")
-        self.input_not_starts_by = self.count_groupbox.findChild(QLineEdit, "not_starts_input")
-        self.checkbox_not_includes_by = self.count_groupbox.findChild(QCheckBox, "checkbox_not_includes_by")
-        self.input_not_includes_by = self.count_groupbox.findChild(QLineEdit, "not_includes_input")
-        self.input_divisible_by = self.count_groupbox.findChild(QLineEdit, "divisible_input")
         self.checkbox_divisible_by = self.count_groupbox.findChild(QCheckBox, "checkbox_divisible_by")
-        self.input_ends_by = self.count_groupbox.findChild(QLineEdit, "ends_input")
+        self.divisible_input = self.count_groupbox.findChild(QLineEdit, "divisible_input")
+        self.checkbox_digit_sum_divisible = self.count_groupbox.findChild(QCheckBox, "checkbox_digit_sum_divisible")
+        self.input_digit_sum_divisible = self.count_groupbox.findChild(QLineEdit, "digit_sum_divisible_input")
+        self.checkbox_starts_by = self.count_groupbox.findChild(QCheckBox, "checkbox_starts_by")
+        self.starts_input = self.count_groupbox.findChild(QLineEdit, "starts_input")
+        self.checkbox_not_starts_by = self.count_groupbox.findChild(QCheckBox, "checkbox_not_starts_by")
+        self.not_starts_input = self.count_groupbox.findChild(QLineEdit, "not_starts_input")
         self.checkbox_ends_by = self.count_groupbox.findChild(QCheckBox, "checkbox_ends_by")
-        self.input_bigger_than = self.count_groupbox.findChild(QLineEdit, "bigger_than_input")
+        self.ends_input = self.count_groupbox.findChild(QLineEdit, "ends_input")
         self.checkbox_bigger_than = self.count_groupbox.findChild(QCheckBox, "checkbox_bigger_than")
-        self.input_is_k_digits = self.count_groupbox.findChild(QLineEdit, "is_k_digits_input")
+        self.bigger_than_input = self.count_groupbox.findChild(QLineEdit, "bigger_than_input")
+        self.checkbox_includes_digits = self.count_groupbox.findChild(QCheckBox, "checkbox_includes_digits")
+        self.includes_digits_input = self.count_groupbox.findChild(QLineEdit, "includes_digits_input")
+        self.checkbox_not_includes_by = self.count_groupbox.findChild(QCheckBox, "checkbox_not_includes_by")
+        self.not_includes_input = self.count_groupbox.findChild(QLineEdit, "not_includes_input")
+        self.checkbox_specific_positions = self.count_groupbox.findChild(QCheckBox, "checkbox_specific_positions")
+        self.specific_positions_input = self.count_groupbox.findChild(QLineEdit, "specific_positions_input")
+        
+        # Calculate sum checkbox
+        self.calculate_sum_checkbox = self.count_groupbox.findChild(QCheckBox, "calculate_sum_checkbox")
         self.checkbox_is_k_digits = self.count_groupbox.findChild(QCheckBox, "checkbox_is_k_digits")
         self.even_checkbox = self.count_groupbox.findChild(QCheckBox, "even_checkbox")
         self.odd_checkbox = self.count_groupbox.findChild(QCheckBox, "odd_checkbox")
@@ -108,6 +115,14 @@ class MainWindow(QWidget):
         self.square_checkbox = self.count_groupbox.findChild(QCheckBox, "square_checkbox")
         self.cube_checkbox = self.count_groupbox.findChild(QCheckBox, "cube_checkbox")
         self.all_diff_checkbox = self.count_groupbox.findChild(QCheckBox, "all_different")
+        self.increasing_digits_checkbox = self.count_groupbox.findChild(QCheckBox, "increasing_digits_checkbox")
+        self.decreasing_digits_checkbox = self.count_groupbox.findChild(QCheckBox, "decreasing_digits_checkbox")
+        
+        # Arithmetic and geometric progression
+        self.arithmetic_checkbox = self.count_groupbox.findChild(QCheckBox, "arithmetic_checkbox")
+        self.arithmetic_input = self.count_groupbox.findChild(QLineEdit, "arithmetic_input")
+        self.geometric_checkbox = self.count_groupbox.findChild(QCheckBox, "geometric_checkbox")
+        self.geometric_input = self.count_groupbox.findChild(QLineEdit, "geometric_input")
 
         self.input_cards = self.draw_groupbox.findChild(QLineEdit, "input_cards")
         self.input_start_at = self.draw_groupbox.findChild(QSpinBox, "start_at_input")
@@ -187,20 +202,27 @@ class MainWindow(QWidget):
     def setup_conditions(self):
         conditions = {
             'has_k_digits': self.input_k_digits.text() if self.checkbox_input_k_digits.isChecked() else None,
-            'divisible_by': self.input_divisible_by.text() if self.checkbox_divisible_by.isChecked() else None,
-            'starts_by': self.input_starts_by.text() if self.checkbox_starts_by.isChecked() else None,
-            'not_starts_by': self.input_not_starts_by.text() if self.checkbox_not_starts_by.isChecked() else None,
-            'not_includes_by': self.input_not_includes_by.text() if self.checkbox_not_includes_by.isChecked() else None,
-            'ends_by': self.input_ends_by.text() if self.checkbox_ends_by.isChecked() else None,
-            'bigger_than': self.input_bigger_than.text() if self.checkbox_bigger_than.isChecked() else None,
-            'is_k_digits': self.input_is_k_digits.text() if self.checkbox_is_k_digits.isChecked() else None,
+            'divisible_by': self.divisible_input.text() if self.checkbox_divisible_by.isChecked() else None,
+            'digit_sum_divisible_by': self.input_digit_sum_divisible.text() if self.checkbox_digit_sum_divisible.isChecked() else None,
+            'starts_by': self.starts_input.text() if self.checkbox_starts_by.isChecked() else None,
+            'not_starts_by': self.not_starts_input.text() if self.checkbox_not_starts_by.isChecked() else None,
+            'not_includes_by': self.not_includes_input.text() if self.checkbox_not_includes_by.isChecked() else None,
+            'ends_by': self.ends_input.text() if self.checkbox_ends_by.isChecked() else None,
+            'bigger_than': self.bigger_than_input.text() if self.checkbox_bigger_than.isChecked() else None,
+            'includes_digits': self.includes_digits_input.text() if self.checkbox_includes_digits.isChecked() else None,
+            'specific_positions': self.specific_positions_input.text() if self.checkbox_specific_positions.isChecked() and 
+                                   self.checkbox_includes_digits.isChecked() and self.checkbox_input_k_digits.isChecked() else None,
             'is_even': self.even_checkbox.isChecked(),
             'is_odd': self.odd_checkbox.isChecked(),
             'is_palindrome': self.palindrome_checkbox.isChecked(),
             'is_prime': self.prime_checkbox.isChecked(),
             'is_square': self.square_checkbox.isChecked(),
             'is_cube': self.cube_checkbox.isChecked(),
-            'all_different': self.all_diff_checkbox.isChecked()
+            'all_different': self.all_diff_checkbox.isChecked(),
+            'is_increasing': self.increasing_digits_checkbox.isChecked(),
+            'is_decreasing': self.decreasing_digits_checkbox.isChecked(),
+            'arithmetic_progression': self.arithmetic_input.text() if self.arithmetic_checkbox.isChecked() else None,
+            'geometric_progression': self.geometric_input.text() if self.geometric_checkbox.isChecked() else None
         }
         print(f"Conditions: {conditions}")
         return conditions
@@ -215,7 +237,24 @@ class MainWindow(QWidget):
         return conditions1
 
     def update_results(self, result, number_list):
-        display_text = f"Số lượng số thỏa mãn: {result}\n" + ", ".join(map(str, number_list))
+        display_text = f"Số lượng số thỏa mãn: {result}"
+        
+        # Add min and max values if there are any results
+        if number_list:
+            # Convert to integers for proper comparison
+            int_numbers = [int(num) for num in number_list]
+            min_value = min(int_numbers)
+            max_value = max(int_numbers)
+            display_text += f" - số nhỏ nhất: {min_value} - số lớn nhất: {max_value}"
+        
+        display_text += "\n"
+        
+        # Calculate and display the sum if the checkbox is checked
+        if hasattr(self, 'calculate_sum_checkbox') and self.calculate_sum_checkbox.isChecked():
+            total_sum = sum(int(num) for num in number_list)
+            display_text += f"Tổng các giá trị phần tử thỏa mãn: {total_sum}\n"
+        
+        display_text += ", ".join(map(str, number_list))
         self.result_output.setText(display_text)
 
     def update_draw_results(self, result, card_list):
