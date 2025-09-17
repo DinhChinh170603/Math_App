@@ -1,90 +1,121 @@
 from itertools import product
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import json
+import os
+from typing import Generator, List, Tuple, Dict, Any
+import gc
 
-def generate_numbers(digits, conditions):
+def generate_numbers_optimized(digits: str, conditions: Dict[str, Any]) -> Generator[int, None, None]:
+    """Memory-efficient generator that yields numbers one at a time instead of creating a list."""
     try:
         leng = int(conditions.get('has_k_digits', 1))
     except ValueError:
         leng = 1
-    numbers = [''.join(p) for p in product(digits, repeat=leng) if p[0] != '0']
-    return numbers
-
-def check_specific_positions(number, positions_str, includes_digits_value=None):
-    # Kiểm tra xem các chữ số có ở đúng vị trí cụ thể hay không
-    # positions_str: chuỗi vị trí như "1,2,5" hoặc "1,0,5"
-    # includes_digits_value: chuỗi chữ số kèm tần suất như "7,7,3"
-    # 0 là không yêu cầu vị trí cụ thể
     
-    # Nếu một trong các tham số đầu vào trống, bỏ qua điều kiện này
+    allow_leading_zeros = conditions.get('allow_leading_zeros', False)
+    
+    # Use generator to avoid storing all combinations in memory
+    if allow_leading_zeros:
+        for p in product(digits, repeat=leng):
+            yield int(''.join(p))
+    else:
+        for p in product(digits, repeat=leng):
+            if p[0] != '0':  # Skip numbers with leading zeros
+                yield int(''.join(p))
+
+def generate_numbers(digits, conditions):
+    """Legacy function for backward compatibility - converts generator to list."""
+    return list(generate_numbers_optimized(digits, conditions))
+
+def check_specific_positions(number, positions_str, includes_digits_value=None, allow_leading_zeros=False):
+    
     if not positions_str or not includes_digits_value:
         return True
     
-    number_str = str(number)
+    # Get the number as string, preserving leading zeros if allow_leading_zeros is True
+    if allow_leading_zeros:
+        # For numbers with leading zeros, we need to preserve the original string format
+        # This is a special case for positions counting when allow_leading_zeros is True
+        number_str = str(number)
+        
+        # If it's just a single digit 0, we return it as is
+        if number == 0:
+            number_str = '0'
+    else:
+        # Regular case - use int to remove leading zeros
+        number_str = str(number)
     
-    # Tách danh sách vị trí
     try:
         positions = [int(pos.strip()) for pos in positions_str.split(',') if pos.strip()]
     except ValueError:
         return False
     
-    # Tách danh sách chữ số từ includes_digits_value
     digits = [d.strip() for d in includes_digits_value.split(',') if d.strip()]
     
-    # Kiểm tra xem có đủ vị trí cho tất cả các chữ số không
     if len(positions) != len(digits):
         return False
     
-    # Kiểm tra độ dài số
     max_position = max([p for p in positions if p > 0], default=0)
     if max_position > 0 and len(number_str) < max_position:
         return False
     
-    # Tạo mô hình số mẫu theo yêu cầu vị trí
-    # Ví dụ với 7,7,3 ở vị trí 1,2,5, mô hình số mẫu sẽ là "77xx3" (với x là bất kỳ)
-    template = ['*'] * len(number_str)  # * là ký hiệu đại diện cho bất kỳ chữ số
+    template = ['*'] * len(number_str)  
     
-    # Số lần xuất hiện của mỗi chữ số cần đạt được
     required_counts = {}
     for d in digits:
         required_counts[d] = required_counts.get(d, 0) + 1
     
-    # Tạo danh sách các chữ số cần ở vị trí cụ thể
     fixed_positions = {}
     for pos, digit in zip(positions, digits):
-        if pos > 0:  # Chỉ xử lý vị trí > 0
-            pos_idx = pos - 1  # Chuyển sang index bắt đầu từ 0
+        if pos > 0: 
+            pos_idx = pos - 1 
             fixed_positions[pos_idx] = digit
     
-    # Đánh dấu các vị trí cụ thể trong mẫu
     for pos_idx, digit in fixed_positions.items():
         if pos_idx >= len(number_str):
             return False
         template[pos_idx] = digit
     
-    # Kiểm tra xem số có phù hợp với mẫu không
     actual_counts = {}
     
-    # Kiểm tra từng vị trí trong số
     for i, actual_digit in enumerate(number_str):
-        # Nếu vị trí này là vị trí cố định, kiểm tra xem chữ số có đúng không
         if i in fixed_positions:
             if actual_digit != fixed_positions[i]:
                 return False
             
-        # Đếm số lần xuất hiện của mỗi chữ số
         if actual_digit in required_counts:
             actual_counts[actual_digit] = actual_counts.get(actual_digit, 0) + 1
     
-    # Kiểm tra tần suất xuất hiện của các chữ số
     for digit, count in required_counts.items():
         if actual_counts.get(digit, 0) != count:
             return False
     
     return True
 
+def check_remainder(number, remainder_str):
+    try:
+        if '%' in remainder_str and '=' in remainder_str:
+            parts = remainder_str.replace('%', '').split('=')
+            if len(parts) != 2:
+                return False
+                
+            a = int(parts[0].strip())
+            b = int(parts[1].strip())
+            
+            if a <= 0:
+                return False 
+                
+            return number % a == b
+            
+        return False 
+    except (ValueError, IndexError):
+        return False 
+
 def check_conditions(number, conditions):
     condition_funcs = {
         'divisible_by': divisible_by,
+        'digit_sum_compare': digit_sum_comparison,
+        'not_divisible_by': not_divisible_by,
         'starts_by': starts_by,
         'not_starts_by': not_starts_by,
         'not_includes_by': not_includes_by,
@@ -93,6 +124,7 @@ def check_conditions(number, conditions):
         'is_k_digits': is_k_digits,
         'includes_digits': includes_digits,
         'digit_sum_divisible_by': digit_sum_divisible_by,
+        'remainder': check_remainder,
         'arithmetic_progression': is_arithmetic_progression,
         'geometric_progression': is_geometric_progression,
         'is_even': lambda num, _: num % 2 == 0 if 'is_even' in conditions and conditions['is_even'] else True,
@@ -106,13 +138,15 @@ def check_conditions(number, conditions):
         'is_decreasing': lambda num, _: is_decreasing(num) if 'is_decreasing' in conditions and conditions['is_decreasing'] else True
     }
     
-    # Handle special case for specific_positions that needs includes_digits_value
     if 'specific_positions' in conditions and conditions['specific_positions'] is not None:
         includes_digits_value = conditions.get('includes_digits')
-        if not check_specific_positions(int(number), conditions['specific_positions'], includes_digits_value):
+        allow_leading_zeros = conditions.get('allow_leading_zeros', False)
+        
+        # When allow_leading_zeros is True, we need to preserve the original number string
+        # to correctly evaluate positions with leading zeros
+        if not check_specific_positions(number, conditions['specific_positions'], includes_digits_value, allow_leading_zeros):
             return False
     
-    # Check all other conditions
     return all(condition_funcs[cond_key](int(number), cond_value) if cond_value is not None else True
                for cond_key, cond_value in conditions.items() 
                if cond_key in condition_funcs and cond_key != 'specific_positions')
@@ -127,7 +161,10 @@ def not_includes_by(number, k):
     return not any(digit in str(number) for digit in k.split(','))
 
 def divisible_by(number, divisors):
-    return all(number % int(divisor) == 0 for divisor in divisors.split(','))
+    return all(int(number) % int(divisor) == 0 for divisor in divisors.split(','))
+
+def not_divisible_by(number, divisors):
+    return all(int(number) % int(divisor) != 0 for divisor in divisors.split(','))
 
 def ends_by(number, ends):
     return number < int(ends)
@@ -160,56 +197,92 @@ def all_different(number, _=None):
     return len(set(str(number))) == len(str(number))
 
 def is_increasing(number, _=None):
-    # Check if digits are in strictly increasing order (e.g., 1289)
     digits = str(number)
     return all(int(digits[i]) < int(digits[i+1]) for i in range(len(digits)-1))
 
 def is_decreasing(number, _=None):
-    # Check if digits are in strictly decreasing order (e.g., 9531)
     digits = str(number)
     return all(int(digits[i]) > int(digits[i+1]) for i in range(len(digits)-1))
 
 def digit_sum_divisible_by(number, divisors):
-    # Check if sum of digits is divisible by all specified divisors
     digit_sum = sum(int(digit) for digit in str(number))
     return all(digit_sum % int(divisor) == 0 for divisor in divisors.split(','))
 
+def digit_sum_comparison(number, comparison_str):
+    
+    digit_sum = sum(int(digit) for digit in str(number))
+    
+    if not comparison_str or comparison_str.strip() == "":
+        return True
+    
+    conditions = comparison_str.split(',')
+    
+    for condition in conditions:
+        condition = condition.strip()
+        if not condition:
+            continue
+            
+        operators = ["<=", ">=", "=", "!=", "<", ">"]
+        found_operator = None
+        value = None
+        
+        for op in operators:
+            if op in condition:
+                found_operator = op
+                value_str = condition.replace(op, "").strip()
+                try:
+                    value = int(value_str)
+                    break
+                except ValueError:
+                    return False
+        
+        if found_operator is None or value is None:
+            return False
+        
+        result = False
+        if found_operator == "<":
+            result = digit_sum < value
+        elif found_operator == ">":
+            result = digit_sum > value
+        elif found_operator == "=":
+            result = digit_sum == value
+        elif found_operator == "!=":
+            result = digit_sum != value
+        elif found_operator == "<=":
+            result = digit_sum <= value
+        elif found_operator == ">=":
+            result = digit_sum >= value
+        
+        if not result:
+            return False
+    
+    return True
+
 def includes_digits(number, digits):
-    # Check if specified digits are present with exact frequencies
-    # Format: "7,7,3" means the digit 7 appears twice and 3 appears once
     number_str = str(number)
     
-    # Handle empty input
     if not digits:
         return True
         
-    # Count occurrences of each digit in the input
     digit_counts = {}
     for digit in digits.split(','):
         digit = digit.strip()
         if digit:
             digit_counts[digit] = digit_counts.get(digit, 0) + 1
     
-    # Check if each digit appears with the required frequency
     for digit, required_count in digit_counts.items():
         if number_str.count(digit) != required_count:
             return False
             
     return True
 
-# Chức năng kiểm tra tần suất giờ đã được tích hợp vào hàm includes_digits
-
 
 def is_arithmetic_progression(number, common_difference):
-    # Check if digits form an arithmetic progression from left to right
-    # e.g., 13579 has common difference 2, 987 has common difference -1
     digits = [int(d) for d in str(number)]
     
-    # Need at least 2 digits to check for progression
     if len(digits) < 2:
         return True
     
-    # Parse common difference, handle fractions like "1/2" or negative values
     try:
         if '/' in common_difference:
             num, denom = common_difference.split('/')
@@ -219,27 +292,20 @@ def is_arithmetic_progression(number, common_difference):
     except (ValueError, ZeroDivisionError):
         return False
     
-    # Check if each digit follows the progression pattern
     for i in range(len(digits) - 1):
-        # Calculate the expected next digit
         expected_next = digits[i] + d
-        # Compare with actual next digit
-        if abs(expected_next - digits[i+1]) > 0.00001:  # Use small epsilon for float comparison
+        if abs(expected_next - digits[i+1]) > 0.00001: 
             return False
             
     return True
 
 
 def is_geometric_progression(number, common_ratio):
-    # Check if digits form a geometric progression from left to right
-    # e.g., 248 has common ratio 2, 8421 has common ratio 1/2
     digits = [int(d) for d in str(number)]
     
-    # Need at least 2 digits to check for progression
     if len(digits) < 2:
         return True
     
-    # Parse common ratio, handle fractions like "1/2" or negative values
     try:
         if '/' in common_ratio:
             num, denom = common_ratio.split('/')
@@ -249,38 +315,177 @@ def is_geometric_progression(number, common_ratio):
     except (ValueError, ZeroDivisionError):
         return False
     
-    # Check for zeros in the digits since we can't divide by zero
     for i in range(len(digits) - 1):
         if digits[i] == 0 and r != 0:
-            # Can't have 0 multiplied by non-zero ratio to get next digit
             return False
             
-        # Calculate the expected next digit
         if digits[i] == 0:
-            expected_next = 0  # 0 times anything is 0
+            expected_next = 0 
         else:
             expected_next = digits[i] * r
             
-        # Compare with actual next digit (with tolerance for floating point)
-        if abs(expected_next - digits[i+1]) > 0.00001:  # Use small epsilon for float comparison
+        if abs(expected_next - digits[i+1]) > 0.00001: 
             return False
             
     return True
 
+def process_batch_optimized(start_range: int, end_range: int, digits: str, conditions: Dict[str, Any], 
+                           batch_size: int = 10000) -> List[int]:
+    """Process a range of numbers in small batches to avoid memory issues."""
+    valid_numbers = []
+    current_batch = []
+    
+    # Generate numbers in the specified range
+    try:
+        leng = int(conditions.get('has_k_digits', 1))
+    except ValueError:
+        leng = 1
+    
+    allow_leading_zeros = conditions.get('allow_leading_zeros', False)
+    
+    # Create range-based generator for this specific range
+    for p in product(digits, repeat=leng):
+        if not allow_leading_zeros and p[0] == '0':
+            continue
+            
+        num = int(''.join(p))
+        if start_range <= num <= end_range:
+            current_batch.append(num)
+            
+            # Process batch when it reaches batch_size
+            if len(current_batch) >= batch_size:
+                valid_numbers.extend([n for n in current_batch if check_conditions(n, conditions)])
+                current_batch = []
+                gc.collect()  # Force garbage collection
+    
+    # Process remaining numbers in the last batch
+    if current_batch:
+        valid_numbers.extend([n for n in current_batch if check_conditions(n, conditions)])
+    
+    return valid_numbers
+
+def save_results_to_files(valid_numbers: List[int], output_dir: str = "results") -> List[str]:
+    """Split large result sets into 4 JSON files to avoid memory issues."""
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    # Clear existing result files
+    for i in range(1, 5):
+        file_path = os.path.join(output_dir, f"results_part_{i}.json")
+        if os.path.exists(file_path):
+            os.remove(file_path)
+    
+    if len(valid_numbers) <= 50000:  # Small result set - return as usual
+        return []
+    
+    # Split into 4 parts for large result sets
+    chunk_size = len(valid_numbers) // 4
+    file_paths = []
+    
+    for i in range(4):
+        start_idx = i * chunk_size
+        end_idx = start_idx + chunk_size if i < 3 else len(valid_numbers)
+        chunk = valid_numbers[start_idx:end_idx]
+        
+        file_path = os.path.join(output_dir, f"results_part_{i+1}.json")
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump({
+                "count": len(chunk),
+                "min_value": min(chunk) if chunk else 0,
+                "max_value": max(chunk) if chunk else 0,
+                "numbers": chunk
+            }, f, ensure_ascii=False, indent=2)
+        
+        file_paths.append(file_path)
+    
+    return file_paths
+
+def count_numbers_optimized(digits: str, conditions: Dict[str, Any], 
+                          max_memory_results: int = 50000, progress_callback=None) -> Tuple[int, List[int], List[str]]:
+    """Optimized counting function with memory management and file output."""
+    try:
+        leng = int(conditions.get('has_k_digits', 1))
+    except ValueError:
+        leng = 1
+    
+    # Calculate total possible combinations to estimate memory usage
+    total_combinations = len(digits) ** leng
+    if not conditions.get('allow_leading_zeros', False):
+        # Subtract combinations starting with 0
+        total_combinations -= len(digits) ** (leng - 1) if leng > 1 else 0
+    
+    progress_msg = f"Bắt đầu xử lý {total_combinations:,} tổ hợp..."
+    print(progress_msg)
+    if progress_callback:
+        progress_callback(progress_msg)
+    
+    valid_numbers = []
+    processed_count = 0
+    batch_size = min(10000, max(1000, total_combinations // 100))  # Adaptive batch size
+    
+    # Use generator to process numbers in batches
+    current_batch = []
+    for num in generate_numbers_optimized(digits, conditions):
+        current_batch.append(num)
+        processed_count += 1
+        
+        # Process batch when it reaches batch_size
+        if len(current_batch) >= batch_size:
+            valid_batch = [n for n in current_batch if check_conditions(n, conditions)]
+            valid_numbers.extend(valid_batch)
+            current_batch = []
+            gc.collect()  # Force garbage collection
+            
+            # Progress indicator
+            if processed_count % 50000 == 0:
+                progress_msg = f"Đã xử lý {processed_count:,}/{total_combinations:,} số, tìm thấy {len(valid_numbers):,} số hợp lệ"
+                print(progress_msg)
+                if progress_callback:
+                    progress_callback(progress_msg)
+    
+    # Process remaining numbers in the last batch
+    if current_batch:
+        valid_batch = [n for n in current_batch if check_conditions(n, conditions)]
+        valid_numbers.extend(valid_batch)
+    
+    # Final progress update
+    progress_msg = f"Hoàn thành! Đã xử lý {processed_count:,} số, tìm thấy {len(valid_numbers):,} số hợp lệ"
+    print(progress_msg)
+    if progress_callback:
+        progress_callback(progress_msg)
+    
+    valid_numbers.sort()
+    
+    # Handle large result sets by saving to files
+    file_paths = []
+    if len(valid_numbers) > max_memory_results:
+        progress_msg = f"Kết quả lớn ({len(valid_numbers):,} số). Đang lưu vào file..."
+        print(progress_msg)
+        if progress_callback:
+            progress_callback(progress_msg)
+        
+        file_paths = save_results_to_files(valid_numbers)
+        # Keep only a sample for UI display
+        display_numbers = valid_numbers[:max_memory_results]
+        return len(valid_numbers), display_numbers, file_paths
+    
+    return len(valid_numbers), valid_numbers, file_paths
+
 def process_chunk(chunk, conditions):
+    """Legacy function for backward compatibility."""
     return [num for num in chunk if check_conditions(num, conditions)]
 
 def chunkify(lst, n):
+    """Legacy function for backward compatibility."""
     return [lst[i::n] for i in range(n)]
 
 def count_numbers(digits, conditions):
-    numbers = generate_numbers(digits, conditions)
-    num_chunks = min(64, len(numbers))  # Number of chunks/processes to create
-    chunks = chunkify(numbers, num_chunks)
+    """Legacy function - now uses optimized version for better performance."""
+    total_count, valid_numbers, file_paths = count_numbers_optimized(digits, conditions)
     
-    with ProcessPoolExecutor() as executor:
-        results = executor.map(process_chunk, chunks, [conditions]*num_chunks)
+    # If files were created, inform about them
+    if file_paths:
+        print(f"Results saved to {len(file_paths)} files in 'results' directory")
+        print("File paths:", file_paths)
     
-    valid_numbers = [num for sublist in results for num in sublist]
-    valid_numbers.sort()
-    return len(valid_numbers), valid_numbers
+    return total_count, valid_numbers
